@@ -1,0 +1,20 @@
+financial_municipality_code,financial_name_raw,financial_status,name_normalized,census_subdivision_code,population_name_raw,population_type,match_method,match_status,review_note
+0098,EDMONTON,City,Edmonton,4811061,Edmonton3 *,CY,manual_confirmed,confirmed,Locked in CLAUDE.md and DATA_AND_KNOWLEDGE_ASSESSMENT; verified in both sources 2026-07-17
+0046,CALGARY,City,Calgary,4806016,Calgary,CY,manual_confirmed,confirmed,Scale peer per approved BUILD plan Phase 1 (owner approval 2026-07-17); verified in both sources 2026-07-17
+0003,AIRDRIE,City,Airdrie,4806021,Airdrie,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17 for the Alberta context map: geographic placement and city-set membership only. NOT approved as a population join; per-capita peer medians remain structurally unavailable."
+0019,BEAUMONT,City,Beaumont,4811013,Beaumont1 *,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note). Beaumont reports as Town in 2018 and City from 2019; it is not in the 2018 city set."
+0043,BROOKS,City,Brooks,4802034,Brooks,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note)."
+0048,CAMROSE,City,Camrose,4810011,Camrose,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note)."
+0117,FORT SASKATCHEWAN,City,Fort Saskatchewan,4811056,Fort Saskatchewan4 *,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note)."
+0132,GRANDE PRAIRIE,City,Grande Prairie,4819012,Grande Prairie,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note)."
+0194,LACOMBE,City,Lacombe,4808031,Lacombe,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note)."
+0200,LEDUC,City,Leduc,4811016,Leduc,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note)."
+0203,LETHBRIDGE,City,Lethbridge,4802012,Lethbridge,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note)."
+0206,LLOYDMINSTER,City,Lloydminster,4810039,Lloydminster (Part)6 *,CY,manual_special,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only. SPECIAL: the city spans AB/SK; the CSD row covers the Alberta part only, while the financial return covers the whole city under the Lloydminster Charter. Ratio metrics (mill rates, utilizations) need no population; any future population use requires separate review."
+0217,MEDICINE HAT,City,Medicine Hat,4801006,Medicine Hat,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note)."
+0262,RED DEER,City,Red Deer,4808011,Red Deer,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note)."
+0291,SPRUCE GROVE,City,Spruce Grove,4811049,Spruce Grove5 *,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note)."
+0292,ST. ALBERT,City,St. Albert,4811062,St. Albert6 *,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note)."
+0347,WETASKIWIN,City,Wetaskiwin,4811002,Wetaskiwin,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note)."
+0356,CHESTERMERE,City,Chestermere,4806017,Chestermere,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note)."
+0525,COLD LAKE,City,Cold Lake,4812002,Cold Lake3 *,CY,normalized_name_exact,confirmed_geo_only,"Owner approval 2026-07-17, geo/context-map scope only (see Airdrie note). The CY row is the City of Cold Lake; the similarly named IRI rows are reserves and were not candidates (type filter CY)."

@@ -1,0 +1,1489 @@
+{
+ "reporting_year": 2025,
+ "rules_version": "1.2 (approved 2026-07-17)",
+ "rules_source": "governance/pressure_rules.md",
+ "coverage_note": "306 of 332 financial information returns received \u2014 peer results provisional (332 per the 2025 workbook's AA(1)-Debt footer row '306 out of 332')",
+ "metrics_evaluated": 22,
+ "metrics_skipped_no_history": [],
+ "signals": [
+  {
+   "metric_id": "exp_parks_rec_per_capita",
+   "class": "per_capita",
+   "adverse_direction": "up",
+   "latest": 295.970669,
+   "history": {
+    "2018": 278.336258,
+    "2019": 269.579415,
+    "2020": 199.679711,
+    "2021": 203.053442,
+    "2022": 245.2038,
+    "2023": 269.862125,
+    "2024": 286.214382,
+    "2025": 295.970669
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": true,
+     "values": {
+      "latest": 295.9707,
+      "most_adverse_prior": 286.2144,
+      "adverse_direction": "up",
+      "history_min": 199.6797,
+      "history_max": 295.9707
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": true,
+     "values": {
+      "latest": 295.9707,
+      "value_2022": 245.2038,
+      "adverse_move": 20.7039,
+      "threshold": 10.0,
+      "kind": "pct"
+     },
+     "rule": ">= 10.0% adverse over 3 years"
+    },
+    {
+     "test_id": "PP-1",
+     "name": "Pace relative to population",
+     "family": "pace",
+     "triggered": true,
+     "values": {
+      "exp_parks_rec_growth_3yr_pct": 39.24,
+      "population_growth_3yr_pct": 15.36,
+      "adverse_gap_pp": 23.88,
+      "threshold_pp": 5.0
+     },
+     "rule": "adverse gap >= 5.0 pp over 3 years"
+    },
+    {
+     "test_id": "CX-1",
+     "name": "Supporting comparison",
+     "family": "context",
+     "triggered": true,
+     "supporting_only": true,
+     "provisional": true,
+     "values": {
+      "Calgary": {
+       "comparator_value": 179.3588,
+       "adverse_gap_pct": 65.02,
+       "threshold_pct": 15.0,
+       "triggered": true
+      }
+     },
+     "rule": "context only \u2014 can never create a high-priority signal; 2025 comparisons provisional (306 of 332 returns)"
+    }
+   ],
+   "status": "High review priority",
+   "explanation": "Parks & recreation expense per capita is $295.97 in 2025 (2018: $278.34); tests EH-1, EH-2, PP-1 triggered, with the supporting comparison (CX-1) also triggered. This flags the area for review; it is not an assessment of financial health."
+  },
+  {
+   "metric_id": "mill_rate_nonres",
+   "class": "mill_rate",
+   "adverse_direction": "up",
+   "latest": 24.2229,
+   "history": {
+    "2018": 17.4354,
+    "2019": 17.8311,
+    "2020": 18.5037,
+    "2021": 19.9792,
+    "2022": 21.0786,
+    "2023": 20.8591,
+    "2024": 22.6627,
+    "2025": 24.2229
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": true,
+     "values": {
+      "latest": 24.2229,
+      "most_adverse_prior": 22.6627,
+      "adverse_direction": "up",
+      "history_min": 17.4354,
+      "history_max": 24.2229
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": true,
+     "values": {
+      "latest": 24.2229,
+      "value_2022": 21.0786,
+      "adverse_move": 14.917,
+      "threshold": 10.0,
+      "kind": "pct"
+     },
+     "rule": ">= 10.0% adverse over 3 years"
+    },
+    {
+     "test_id": "CX-1",
+     "name": "Supporting comparison",
+     "family": "context",
+     "triggered": true,
+     "supporting_only": true,
+     "provisional": true,
+     "values": {
+      "Calgary": {
+       "comparator_value": 17.9731,
+       "adverse_gap_pct": 34.77,
+       "threshold_pct": 15.0,
+       "triggered": true
+      },
+      "Alberta reporting cities excl. Edmonton (n=18)": {
+       "comparator_value": 13.4191,
+       "adverse_gap_pct": 80.51,
+       "threshold_pct": 15.0,
+       "triggered": true
+      }
+     },
+     "rule": "context only \u2014 can never create a high-priority signal; 2025 comparisons provisional (306 of 332 returns)"
+    }
+   ],
+   "status": "High review priority",
+   "explanation": "Non-residential general municipal mill rate is 24.22 in 2025 (2018: 17.44); tests EH-1, EH-2 triggered, with the supporting comparison (CX-1) also triggered. This flags the area for review; it is not an assessment of financial health."
+  },
+  {
+   "metric_id": "exp_police_per_capita",
+   "class": "per_capita",
+   "adverse_direction": "up",
+   "latest": 509.957643,
+   "history": {
+    "2018": 443.197862,
+    "2019": 453.900101,
+    "2020": 461.872083,
+    "2021": 475.711859,
+    "2022": 471.847885,
+    "2023": 471.500191,
+    "2024": 490.561627,
+    "2025": 509.957643
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": true,
+     "values": {
+      "latest": 509.9576,
+      "most_adverse_prior": 490.5616,
+      "adverse_direction": "up",
+      "history_min": 443.1979,
+      "history_max": 509.9576
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 509.9576,
+      "value_2022": 471.8479,
+      "adverse_move": 8.0767,
+      "threshold": 10.0,
+      "kind": "pct"
+     },
+     "rule": ">= 10.0% adverse over 3 years"
+    },
+    {
+     "test_id": "PP-1",
+     "name": "Pace relative to population",
+     "family": "pace",
+     "triggered": true,
+     "values": {
+      "exp_police_growth_3yr_pct": 24.67,
+      "population_growth_3yr_pct": 15.36,
+      "adverse_gap_pp": 9.32,
+      "threshold_pp": 5.0
+     },
+     "rule": "adverse gap >= 5.0 pp over 3 years"
+    },
+    {
+     "test_id": "CX-1",
+     "name": "Supporting comparison",
+     "family": "context",
+     "triggered": true,
+     "supporting_only": true,
+     "provisional": true,
+     "values": {
+      "Calgary": {
+       "comparator_value": 428.2127,
+       "adverse_gap_pct": 19.09,
+       "threshold_pct": 15.0,
+       "triggered": true
+      }
+     },
+     "rule": "context only \u2014 can never create a high-priority signal; 2025 comparisons provisional (306 of 332 returns)"
+    }
+   ],
+   "status": "High review priority",
+   "explanation": "Police expense per capita is $509.96 in 2025 (2018: $443.20); tests EH-1, PP-1 triggered, with the supporting comparison (CX-1) also triggered. This flags the area for review; it is not an assessment of financial health."
+  }
+ ],
+ "truncated_signals": [
+  {
+   "metric_id": "fte_per_1000",
+   "class": "fte",
+   "adverse_direction": "down",
+   "latest": 9.623716,
+   "history": {
+    "2018": 10.20221,
+    "2019": 10.796893,
+    "2020": 9.929712,
+    "2021": 10.065227,
+    "2022": 10.113149,
+    "2023": 9.930065,
+    "2024": 9.682994,
+    "2025": 9.623716
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": true,
+     "values": {
+      "latest": 9.6237,
+      "most_adverse_prior": 9.683,
+      "adverse_direction": "down",
+      "history_min": 9.6237,
+      "history_max": 10.7969
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 9.6237,
+      "value_2022": 10.1131,
+      "adverse_move": 0.4894,
+      "threshold": 0.5,
+      "kind": "abs"
+     },
+     "rule": ">= 0.5 adverse over 3 years"
+    },
+    {
+     "test_id": "PP-1",
+     "name": "Pace relative to population",
+     "family": "pace",
+     "triggered": true,
+     "values": {
+      "fte_total_growth_3yr_pct": 9.77,
+      "population_growth_3yr_pct": 15.36,
+      "adverse_gap_pp": 5.58,
+      "threshold_pp": 5.0
+     },
+     "rule": "adverse gap >= 5.0 pp over 3 years"
+    }
+   ],
+   "status": "High review priority",
+   "explanation": "FTE per 1,000 residents is 9.62 in 2025 (2018: 10.20); tests EH-1, PP-1 triggered. This flags the area for review; it is not an assessment of financial health."
+  },
+  {
+   "metric_id": "mill_rate_res",
+   "class": "mill_rate",
+   "adverse_direction": "up",
+   "latest": 7.6254,
+   "history": {
+    "2018": 6.1982,
+    "2019": 6.4737,
+    "2020": 6.8168,
+    "2021": 7.0109,
+    "2022": 6.9072,
+    "2023": 7.0081,
+    "2024": 7.6648,
+    "2025": 7.6254
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 7.6254,
+      "most_adverse_prior": 7.6648,
+      "adverse_direction": "up",
+      "history_min": 6.1982,
+      "history_max": 7.6648
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": true,
+     "values": {
+      "latest": 7.6254,
+      "value_2022": 6.9072,
+      "adverse_move": 10.3978,
+      "threshold": 10.0,
+      "kind": "pct"
+     },
+     "rule": ">= 10.0% adverse over 3 years"
+    },
+    {
+     "test_id": "CX-1",
+     "name": "Supporting comparison",
+     "family": "context",
+     "triggered": true,
+     "supporting_only": true,
+     "provisional": true,
+     "values": {
+      "Calgary": {
+       "comparator_value": 3.8706,
+       "adverse_gap_pct": 97.01,
+       "threshold_pct": 15.0,
+       "triggered": true
+      },
+      "Alberta reporting cities excl. Edmonton (n=18)": {
+       "comparator_value": 7.5567,
+       "adverse_gap_pct": 0.91,
+       "threshold_pct": 15.0,
+       "triggered": false
+      }
+     },
+     "rule": "context only \u2014 can never create a high-priority signal; 2025 comparisons provisional (306 of 332 returns)"
+    }
+   ],
+   "status": "Watch",
+   "explanation": "Residential general municipal mill rate is 7.63 in 2025 (2018: 6.20); tests EH-2 triggered, with the supporting comparison (CX-1) also triggered. This flags the area for review; it is not an assessment of financial health."
+  },
+  {
+   "metric_id": "exp_fire_per_capita",
+   "class": "per_capita",
+   "adverse_direction": "up",
+   "latest": 218.984168,
+   "history": {
+    "2018": 210.543214,
+    "2019": 219.476103,
+    "2020": 219.272547,
+    "2021": 218.378697,
+    "2022": 208.170075,
+    "2023": 214.672329,
+    "2024": 200.065956,
+    "2025": 218.984168
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 218.9842,
+      "most_adverse_prior": 219.4761,
+      "adverse_direction": "up",
+      "history_min": 200.066,
+      "history_max": 219.4761
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 218.9842,
+      "value_2022": 208.1701,
+      "adverse_move": 5.1948,
+      "threshold": 10.0,
+      "kind": "pct"
+     },
+     "rule": ">= 10.0% adverse over 3 years"
+    },
+    {
+     "test_id": "PP-1",
+     "name": "Pace relative to population",
+     "family": "pace",
+     "triggered": true,
+     "values": {
+      "exp_fire_growth_3yr_pct": 21.35,
+      "population_growth_3yr_pct": 15.36,
+      "adverse_gap_pp": 5.99,
+      "threshold_pp": 5.0
+     },
+     "rule": "adverse gap >= 5.0 pp over 3 years"
+    },
+    {
+     "test_id": "CX-1",
+     "name": "Supporting comparison",
+     "family": "context",
+     "triggered": false,
+     "supporting_only": true,
+     "provisional": true,
+     "values": {
+      "Calgary": {
+       "comparator_value": 217.0726,
+       "adverse_gap_pct": 0.88,
+       "threshold_pct": 15.0,
+       "triggered": false
+      }
+     },
+     "rule": "context only \u2014 can never create a high-priority signal; 2025 comparisons provisional (306 of 332 returns)"
+    }
+   ],
+   "status": "Watch",
+   "explanation": "Fire expense per capita is $218.98 in 2025 (2018: $210.54); tests PP-1 triggered. This flags the area for review; it is not an assessment of financial health."
+  },
+  {
+   "metric_id": "exp_transit_per_capita",
+   "class": "per_capita",
+   "adverse_direction": "up",
+   "latest": 492.10164,
+   "history": {
+    "2018": 441.090017,
+    "2019": 505.565032,
+    "2020": 429.107473,
+    "2021": 430.116704,
+    "2022": 471.21069,
+    "2023": 433.697989,
+    "2024": 492.918507,
+    "2025": 492.10164
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 492.1016,
+      "most_adverse_prior": 505.565,
+      "adverse_direction": "up",
+      "history_min": 429.1075,
+      "history_max": 505.565
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 492.1016,
+      "value_2022": 471.2107,
+      "adverse_move": 4.4335,
+      "threshold": 10.0,
+      "kind": "pct"
+     },
+     "rule": ">= 10.0% adverse over 3 years"
+    },
+    {
+     "test_id": "PP-1",
+     "name": "Pace relative to population",
+     "family": "pace",
+     "triggered": true,
+     "values": {
+      "exp_transit_growth_3yr_pct": 20.47,
+      "population_growth_3yr_pct": 15.36,
+      "adverse_gap_pp": 5.11,
+      "threshold_pp": 5.0
+     },
+     "rule": "adverse gap >= 5.0 pp over 3 years"
+    },
+    {
+     "test_id": "CX-1",
+     "name": "Supporting comparison",
+     "family": "context",
+     "triggered": false,
+     "supporting_only": true,
+     "provisional": true,
+     "values": {
+      "Calgary": {
+       "comparator_value": 459.2599,
+       "adverse_gap_pct": 7.15,
+       "threshold_pct": 15.0,
+       "triggered": false
+      }
+     },
+     "rule": "context only \u2014 can never create a high-priority signal; 2025 comparisons provisional (306 of 332 returns)"
+    }
+   ],
+   "status": "Watch",
+   "explanation": "Transit expense per capita is $492.10 in 2025 (2018: $441.09); tests PP-1 triggered. This flags the area for review; it is not an assessment of financial health."
+  },
+  {
+   "metric_id": "assessment_per_capita",
+   "class": "per_capita",
+   "adverse_direction": "down",
+   "latest": 156006.238339,
+   "history": {
+    "2018": 168531.384505,
+    "2019": 167635.86414,
+    "2020": 167405.58211,
+    "2021": 165573.551589,
+    "2022": 158556.796977,
+    "2023": 157363.936096,
+    "2024": 157510.503968,
+    "2025": 156006.238339
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": true,
+     "values": {
+      "latest": 156006.2383,
+      "most_adverse_prior": 157363.9361,
+      "adverse_direction": "down",
+      "history_min": 156006.2383,
+      "history_max": 168531.3845
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 156006.2383,
+      "value_2022": 158556.797,
+      "adverse_move": 1.6086,
+      "threshold": 10.0,
+      "kind": "pct"
+     },
+     "rule": ">= 10.0% adverse over 3 years"
+    },
+    {
+     "test_id": "PP-1",
+     "name": "Pace relative to population",
+     "family": "pace",
+     "triggered": false,
+     "values": {
+      "equalized_assessment_growth_3yr_pct": 13.5,
+      "population_growth_3yr_pct": 15.36,
+      "adverse_gap_pp": 1.86,
+      "threshold_pp": 5.0
+     },
+     "rule": "adverse gap >= 5.0 pp over 3 years"
+    },
+    {
+     "test_id": "CX-1",
+     "name": "Supporting comparison",
+     "family": "context",
+     "triggered": true,
+     "supporting_only": true,
+     "provisional": true,
+     "values": {
+      "Calgary": {
+       "comparator_value": 219070.401,
+       "adverse_gap_pct": 28.79,
+       "threshold_pct": 15.0,
+       "triggered": true
+      }
+     },
+     "rule": "context only \u2014 can never create a high-priority signal; 2025 comparisons provisional (306 of 332 returns)"
+    }
+   ],
+   "status": "Watch",
+   "explanation": "Assessment per capita is $156,006.24 in 2025 (2018: $168,531.38); tests EH-1 triggered, with the supporting comparison (CX-1) also triggered. This flags the area for review; it is not an assessment of financial health."
+  },
+  {
+   "metric_id": "exp_per_capita",
+   "class": "per_capita",
+   "adverse_direction": "up",
+   "latest": 3265.730702,
+   "history": {
+    "2018": 3020.552985,
+    "2019": 3107.341556,
+    "2020": 2888.951953,
+    "2021": 2943.544144,
+    "2022": 3208.824971,
+    "2023": 3245.915703,
+    "2024": 3189.111432,
+    "2025": 3265.730702
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": true,
+     "values": {
+      "latest": 3265.7307,
+      "most_adverse_prior": 3245.9157,
+      "adverse_direction": "up",
+      "history_min": 2888.952,
+      "history_max": 3265.7307
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 3265.7307,
+      "value_2022": 3208.825,
+      "adverse_move": 1.7734,
+      "threshold": 10.0,
+      "kind": "pct"
+     },
+     "rule": ">= 10.0% adverse over 3 years"
+    },
+    {
+     "test_id": "PP-1",
+     "name": "Pace relative to population",
+     "family": "pace",
+     "triggered": false,
+     "values": {
+      "exp_total_growth_3yr_pct": 17.4,
+      "population_growth_3yr_pct": 15.36,
+      "adverse_gap_pp": 2.05,
+      "threshold_pp": 5.0
+     },
+     "rule": "adverse gap >= 5.0 pp over 3 years"
+    },
+    {
+     "test_id": "CX-1",
+     "name": "Supporting comparison",
+     "family": "context",
+     "triggered": false,
+     "supporting_only": true,
+     "provisional": true,
+     "values": {
+      "Calgary": {
+       "comparator_value": 3329.8982,
+       "adverse_gap_pct": -1.93,
+       "threshold_pct": 15.0,
+       "triggered": false
+      }
+     },
+     "rule": "context only \u2014 can never create a high-priority signal; 2025 comparisons provisional (306 of 332 returns)"
+    }
+   ],
+   "status": "Watch",
+   "explanation": "Expense per capita is $3,265.73 in 2025 (2018: $3,020.55); tests EH-1 triggered. This flags the area for review; it is not an assessment of financial health."
+  },
+  {
+   "metric_id": "debt_service_utilization",
+   "class": "utilization",
+   "adverse_direction": "up",
+   "latest": 32.642682,
+   "history": {
+    "2018": 29.080022,
+    "2019": 29.458375,
+    "2020": 30.55536,
+    "2021": 32.114854,
+    "2022": 38.728938,
+    "2023": 32.866478,
+    "2024": 32.711604,
+    "2025": 32.642682
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 32.6427,
+      "most_adverse_prior": 38.7289,
+      "adverse_direction": "up",
+      "history_min": 29.08,
+      "history_max": 38.7289
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 32.6427,
+      "value_2022": 38.7289,
+      "adverse_move": -6.0863,
+      "threshold": 3.0,
+      "kind": "pp"
+     },
+     "rule": ">= 3.0 pp adverse over 3 years"
+    },
+    {
+     "test_id": "CR-1",
+     "name": "Capacity-ratio movement",
+     "family": "capacity",
+     "triggered": false,
+     "values": {
+      "latest": 32.6427,
+      "history_min": 29.08,
+      "history_median": 32.3788,
+      "above_min_pp": 3.5627,
+      "threshold_pp": 5.0
+     },
+     "rule": "latest >= 5.0 pp above 8-year minimum AND above 8-year median"
+    },
+    {
+     "test_id": "CX-1",
+     "name": "Supporting comparison",
+     "family": "context",
+     "triggered": true,
+     "supporting_only": true,
+     "provisional": true,
+     "values": {
+      "Calgary": {
+       "comparator_value": 50.8294,
+       "adverse_gap_pp": -18.19,
+       "threshold_pp": 10.0,
+       "triggered": false
+      },
+      "Alberta reporting cities excl. Edmonton (n=18)": {
+       "comparator_value": 19.8135,
+       "adverse_gap_pp": 12.83,
+       "threshold_pp": 10.0,
+       "triggered": true
+      }
+     },
+     "rule": "context only \u2014 can never create a high-priority signal; 2025 comparisons provisional (306 of 332 returns)"
+    }
+   ],
+   "status": "Watch",
+   "explanation": "Debt-service utilization is 32.64% in 2025 (2018: 29.08%); only the supporting comparison test (CX-1) triggered \u2014 context evidence, insufficient for high priority. This flags the area for review; it is not an assessment of financial health."
+  },
+  {
+   "metric_id": "debt_utilization",
+   "class": "utilization",
+   "adverse_direction": "up",
+   "latest": 59.265937,
+   "history": {
+    "2018": 54.519009,
+    "2019": 54.835951,
+    "2020": 58.17326,
+    "2021": 59.32606,
+    "2022": 64.110733,
+    "2023": 62.184763,
+    "2024": 60.465254,
+    "2025": 59.265937
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 59.2659,
+      "most_adverse_prior": 64.1107,
+      "adverse_direction": "up",
+      "history_min": 54.519,
+      "history_max": 64.1107
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 59.2659,
+      "value_2022": 64.1107,
+      "adverse_move": -4.8448,
+      "threshold": 3.0,
+      "kind": "pp"
+     },
+     "rule": ">= 3.0 pp adverse over 3 years"
+    },
+    {
+     "test_id": "CR-1",
+     "name": "Capacity-ratio movement",
+     "family": "capacity",
+     "triggered": false,
+     "values": {
+      "latest": 59.2659,
+      "history_min": 54.519,
+      "history_median": 59.296,
+      "above_min_pp": 4.7469,
+      "threshold_pp": 5.0
+     },
+     "rule": "latest >= 5.0 pp above 8-year minimum AND above 8-year median"
+    },
+    {
+     "test_id": "CX-1",
+     "name": "Supporting comparison",
+     "family": "context",
+     "triggered": true,
+     "supporting_only": true,
+     "provisional": true,
+     "values": {
+      "Calgary": {
+       "comparator_value": 36.3416,
+       "adverse_gap_pp": 22.92,
+       "threshold_pp": 10.0,
+       "triggered": true
+      },
+      "Alberta reporting cities excl. Edmonton (n=18)": {
+       "comparator_value": 30.594,
+       "adverse_gap_pp": 28.67,
+       "threshold_pp": 10.0,
+       "triggered": true
+      }
+     },
+     "rule": "context only \u2014 can never create a high-priority signal; 2025 comparisons provisional (306 of 332 returns)"
+    }
+   ],
+   "status": "Watch",
+   "explanation": "Debt utilization is 59.27% in 2025 (2018: 54.52%); only the supporting comparison test (CX-1) triggered \u2014 context evidence, insufficient for high priority. This flags the area for review; it is not an assessment of financial health."
+  },
+  {
+   "metric_id": "exp_culture_per_capita",
+   "class": "per_capita",
+   "adverse_direction": "up",
+   "latest": 74.034055,
+   "history": {
+    "2018": 74.553304,
+    "2019": 73.324962,
+    "2020": 66.790501,
+    "2021": 69.892335,
+    "2022": 77.627919,
+    "2023": 76.676103,
+    "2024": 75.1388,
+    "2025": 74.034055
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 74.0341,
+      "most_adverse_prior": 77.6279,
+      "adverse_direction": "up",
+      "history_min": 66.7905,
+      "history_max": 77.6279
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 74.0341,
+      "value_2022": 77.6279,
+      "adverse_move": -4.6296,
+      "threshold": 10.0,
+      "kind": "pct"
+     },
+     "rule": ">= 10.0% adverse over 3 years"
+    },
+    {
+     "test_id": "PP-1",
+     "name": "Pace relative to population",
+     "family": "pace",
+     "triggered": false,
+     "values": {
+      "exp_culture_growth_3yr_pct": 10.02,
+      "population_growth_3yr_pct": 15.36,
+      "adverse_gap_pp": -5.34,
+      "threshold_pp": 5.0
+     },
+     "rule": "adverse gap >= 5.0 pp over 3 years"
+    },
+    {
+     "test_id": "CX-1",
+     "name": "Supporting comparison",
+     "family": "context",
+     "triggered": true,
+     "supporting_only": true,
+     "provisional": true,
+     "values": {
+      "Calgary": {
+       "comparator_value": 48.6039,
+       "adverse_gap_pct": 52.32,
+       "threshold_pct": 15.0,
+       "triggered": true
+      }
+     },
+     "rule": "context only \u2014 can never create a high-priority signal; 2025 comparisons provisional (306 of 332 returns)"
+    }
+   ],
+   "status": "Watch",
+   "explanation": "Culture expense per capita is $74.03 in 2025 (2018: $74.55); only the supporting comparison test (CX-1) triggered \u2014 context evidence, insufficient for high priority. This flags the area for review; it is not an assessment of financial health."
+  },
+  {
+   "metric_id": "exp_roads_per_capita",
+   "class": "per_capita",
+   "adverse_direction": "up",
+   "latest": 415.549607,
+   "history": {
+    "2018": 431.231803,
+    "2019": 423.229833,
+    "2020": 419.151006,
+    "2021": 413.652475,
+    "2022": 458.356856,
+    "2023": 461.767078,
+    "2024": 409.49598,
+    "2025": 415.549607
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 415.5496,
+      "most_adverse_prior": 461.7671,
+      "adverse_direction": "up",
+      "history_min": 409.496,
+      "history_max": 461.7671
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 415.5496,
+      "value_2022": 458.3569,
+      "adverse_move": -9.3393,
+      "threshold": 10.0,
+      "kind": "pct"
+     },
+     "rule": ">= 10.0% adverse over 3 years"
+    },
+    {
+     "test_id": "PP-1",
+     "name": "Pace relative to population",
+     "family": "pace",
+     "triggered": false,
+     "values": {
+      "exp_roads_growth_3yr_pct": 4.58,
+      "population_growth_3yr_pct": 15.36,
+      "adverse_gap_pp": -10.77,
+      "threshold_pp": 5.0
+     },
+     "rule": "adverse gap >= 5.0 pp over 3 years"
+    },
+    {
+     "test_id": "CX-1",
+     "name": "Supporting comparison",
+     "family": "context",
+     "triggered": true,
+     "supporting_only": true,
+     "provisional": true,
+     "values": {
+      "Calgary": {
+       "comparator_value": 301.9034,
+       "adverse_gap_pct": 37.64,
+       "threshold_pct": 15.0,
+       "triggered": true
+      }
+     },
+     "rule": "context only \u2014 can never create a high-priority signal; 2025 comparisons provisional (306 of 332 returns)"
+    }
+   ],
+   "status": "Watch",
+   "explanation": "Roads expense per capita is $415.55 in 2025 (2018: $431.23); only the supporting comparison test (CX-1) triggered \u2014 context evidence, insufficient for high priority. This flags the area for review; it is not an assessment of financial health."
+  }
+ ],
+ "context_approved_metrics": [
+  "assessment_per_capita",
+  "debt_service_utilization",
+  "debt_utilization",
+  "exp_culture_per_capita",
+  "exp_fire_per_capita",
+  "exp_parks_rec_per_capita",
+  "exp_per_capita",
+  "exp_police_per_capita",
+  "exp_roads_per_capita",
+  "exp_transit_per_capita",
+  "mill_rate_nonres",
+  "mill_rate_res",
+  "rev_per_capita"
+ ],
+ "not_flagged": [
+  {
+   "metric_id": "rev_per_capita",
+   "class": "per_capita",
+   "adverse_direction": "down",
+   "latest": 4312.898784,
+   "history": {
+    "2018": 3980.479001,
+    "2019": 3769.836113,
+    "2020": 3714.952664,
+    "2021": 3697.274358,
+    "2022": 3788.982108,
+    "2023": 3936.005955,
+    "2024": 4009.051821,
+    "2025": 4312.898784
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 4312.8988,
+      "most_adverse_prior": 3697.2744,
+      "adverse_direction": "down",
+      "history_min": 3697.2744,
+      "history_max": 4312.8988
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 4312.8988,
+      "value_2022": 3788.9821,
+      "adverse_move": -13.8274,
+      "threshold": 10.0,
+      "kind": "pct"
+     },
+     "rule": ">= 10.0% adverse over 3 years"
+    },
+    {
+     "test_id": "PP-1",
+     "name": "Pace relative to population",
+     "family": "pace",
+     "triggered": false,
+     "values": {
+      "rev_total_growth_3yr_pct": 31.31,
+      "population_growth_3yr_pct": 15.36,
+      "adverse_gap_pp": -15.95,
+      "threshold_pp": 5.0
+     },
+     "rule": "adverse gap >= 5.0 pp over 3 years"
+    },
+    {
+     "test_id": "CX-1",
+     "name": "Supporting comparison",
+     "family": "context",
+     "triggered": false,
+     "supporting_only": true,
+     "provisional": true,
+     "values": {
+      "Calgary": {
+       "comparator_value": 4513.1687,
+       "adverse_gap_pct": 4.44,
+       "threshold_pct": 15.0,
+       "triggered": false
+      }
+     },
+     "rule": "context only \u2014 can never create a high-priority signal; 2025 comparisons provisional (306 of 332 returns)"
+    }
+   ],
+   "status": "Not flagged",
+   "explanation": "Revenue per capita is $4,312.90 in 2025 (2018: $3,980.48); none of the approved tests triggered."
+  },
+  {
+   "metric_id": "exp_police_share",
+   "class": "share",
+   "adverse_direction": "up",
+   "latest": 15.615422,
+   "history": {
+    "2018": 14.672739,
+    "2019": 14.607345,
+    "2020": 15.987531,
+    "2021": 16.161193,
+    "2022": 14.704694,
+    "2023": 14.525953,
+    "2024": 15.382392,
+    "2025": 15.615422
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 15.6154,
+      "most_adverse_prior": 16.1612,
+      "adverse_direction": "up",
+      "history_min": 14.526,
+      "history_max": 16.1612
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 15.6154,
+      "value_2022": 14.7047,
+      "adverse_move": 0.9107,
+      "threshold": 2.0,
+      "kind": "pp"
+     },
+     "rule": ">= 2.0 pp adverse over 3 years"
+    }
+   ],
+   "status": "Not flagged",
+   "explanation": "Police share of total expense is 15.62% in 2025 (2018: 14.67%); none of the approved tests triggered."
+  },
+  {
+   "metric_id": "exp_fire_share",
+   "class": "share",
+   "adverse_direction": "up",
+   "latest": 6.705518,
+   "history": {
+    "2018": 6.970353,
+    "2019": 7.063147,
+    "2020": 7.590038,
+    "2021": 7.418903,
+    "2022": 6.487424,
+    "2023": 6.613614,
+    "2024": 6.273408,
+    "2025": 6.705518
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 6.7055,
+      "most_adverse_prior": 7.59,
+      "adverse_direction": "up",
+      "history_min": 6.2734,
+      "history_max": 7.59
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 6.7055,
+      "value_2022": 6.4874,
+      "adverse_move": 0.2181,
+      "threshold": 2.0,
+      "kind": "pp"
+     },
+     "rule": ">= 2.0 pp adverse over 3 years"
+    }
+   ],
+   "status": "Not flagged",
+   "explanation": "Fire share of total expense is 6.71% in 2025 (2018: 6.97%); none of the approved tests triggered."
+  },
+  {
+   "metric_id": "exp_roads_share",
+   "class": "share",
+   "adverse_direction": "up",
+   "latest": 12.724552,
+   "history": {
+    "2018": 14.276585,
+    "2019": 13.620319,
+    "2020": 14.508757,
+    "2021": 14.052871,
+    "2022": 14.284259,
+    "2023": 14.226096,
+    "2024": 12.840441,
+    "2025": 12.724552
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 12.7246,
+      "most_adverse_prior": 14.5088,
+      "adverse_direction": "up",
+      "history_min": 12.7246,
+      "history_max": 14.5088
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 12.7246,
+      "value_2022": 14.2843,
+      "adverse_move": -1.5597,
+      "threshold": 2.0,
+      "kind": "pp"
+     },
+     "rule": ">= 2.0 pp adverse over 3 years"
+    }
+   ],
+   "status": "Not flagged",
+   "explanation": "Roads share of total expense is 12.72% in 2025 (2018: 14.28%); none of the approved tests triggered."
+  },
+  {
+   "metric_id": "exp_transit_share",
+   "class": "share",
+   "adverse_direction": "up",
+   "latest": 15.068653,
+   "history": {
+    "2018": 14.602956,
+    "2019": 16.270018,
+    "2020": 14.853396,
+    "2021": 14.612205,
+    "2022": 14.684836,
+    "2023": 13.361345,
+    "2024": 15.456296,
+    "2025": 15.068653
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 15.0687,
+      "most_adverse_prior": 16.27,
+      "adverse_direction": "up",
+      "history_min": 13.3613,
+      "history_max": 16.27
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 15.0687,
+      "value_2022": 14.6848,
+      "adverse_move": 0.3838,
+      "threshold": 2.0,
+      "kind": "pp"
+     },
+     "rule": ">= 2.0 pp adverse over 3 years"
+    }
+   ],
+   "status": "Not flagged",
+   "explanation": "Transit share of total expense is 15.07% in 2025 (2018: 14.60%); none of the approved tests triggered."
+  },
+  {
+   "metric_id": "exp_parks_rec_share",
+   "class": "share",
+   "adverse_direction": "up",
+   "latest": 9.062923,
+   "history": {
+    "2018": 9.214745,
+    "2019": 8.675564,
+    "2020": 6.911839,
+    "2021": 6.898264,
+    "2022": 7.641545,
+    "2023": 8.313898,
+    "2024": 8.974738,
+    "2025": 9.062923
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 9.0629,
+      "most_adverse_prior": 9.2147,
+      "adverse_direction": "up",
+      "history_min": 6.8983,
+      "history_max": 9.2147
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 9.0629,
+      "value_2022": 7.6415,
+      "adverse_move": 1.4214,
+      "threshold": 2.0,
+      "kind": "pp"
+     },
+     "rule": ">= 2.0 pp adverse over 3 years"
+    }
+   ],
+   "status": "Not flagged",
+   "explanation": "Parks & recreation share of total expense is 9.06% in 2025 (2018: 9.21%); none of the approved tests triggered."
+  },
+  {
+   "metric_id": "exp_culture_share",
+   "class": "share",
+   "adverse_direction": "up",
+   "latest": 2.266998,
+   "history": {
+    "2018": 2.468201,
+    "2019": 2.359733,
+    "2020": 2.311928,
+    "2021": 2.374428,
+    "2022": 2.419201,
+    "2023": 2.362233,
+    "2024": 2.356105,
+    "2025": 2.266998
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 2.267,
+      "most_adverse_prior": 2.4682,
+      "adverse_direction": "up",
+      "history_min": 2.267,
+      "history_max": 2.4682
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 2.267,
+      "value_2022": 2.4192,
+      "adverse_move": -0.1522,
+      "threshold": 2.0,
+      "kind": "pp"
+     },
+     "rule": ">= 2.0 pp adverse over 3 years"
+    }
+   ],
+   "status": "Not flagged",
+   "explanation": "Culture share of total expense is 2.27% in 2025 (2018: 2.47%); none of the approved tests triggered."
+  },
+  {
+   "metric_id": "net_financial_assets",
+   "class": "balance",
+   "adverse_direction": "down",
+   "latest": 3200811000.0,
+   "history": {
+    "2018": 2538224000.0,
+    "2019": 2487476000.0,
+    "2020": 2499987000.0,
+    "2021": 2722982000.0,
+    "2022": 2853382000.0,
+    "2023": 2831988000.0,
+    "2024": 3085289000.0,
+    "2025": 3200811000.0
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 3200811000.0,
+      "most_adverse_prior": 2487476000.0,
+      "adverse_direction": "down",
+      "history_min": 2487476000.0,
+      "history_max": 3200811000.0
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 3200811000.0,
+      "value_2022": 2853382000.0,
+      "adverse_move": -12.5088,
+      "threshold": 15.0,
+      "kind": "pct_of_median_abs_level"
+     },
+     "rule": "adverse change >= 15.0% of 8-year median absolute level"
+    }
+   ],
+   "status": "Not flagged",
+   "explanation": "Net financial assets / net debt is $3,200,811,000.00 in 2025 (2018: $2,538,224,000.00); none of the approved tests triggered."
+  },
+  {
+   "metric_id": "accumulated_surplus",
+   "class": "balance",
+   "adverse_direction": "down",
+   "latest": 20427923000.0,
+   "history": {
+    "2018": 14296486000.0,
+    "2019": 14928471000.0,
+    "2020": 15772923000.0,
+    "2021": 16562068000.0,
+    "2022": 17295000000.0,
+    "2023": 17993728000.0,
+    "2024": 19154732000.0,
+    "2025": 20427923000.0
+   },
+   "tests": [
+    {
+     "test_id": "EH-1",
+     "name": "Edmonton historical level",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 20427923000.0,
+      "most_adverse_prior": 14296486000.0,
+      "adverse_direction": "down",
+      "history_min": 14296486000.0,
+      "history_max": 20427923000.0
+     },
+     "rule": "latest value is the most adverse of 2018-2025"
+    },
+    {
+     "test_id": "EH-2",
+     "name": "Edmonton recent movement",
+     "family": "historical",
+     "triggered": false,
+     "values": {
+      "latest": 20427923000.0,
+      "value_2022": 17295000000.0,
+      "adverse_move": -18.5068,
+      "threshold": 15.0,
+      "kind": "pct_of_median_abs_level"
+     },
+     "rule": "adverse change >= 15.0% of 8-year median absolute level"
+    }
+   ],
+   "status": "Not flagged",
+   "explanation": "Accumulated surplus is $20,427,923,000.00 in 2025 (2018: $14,296,486,000.00); none of the approved tests triggered."
+  }
+ ],
+ "disclaimer": "Signals are transparent flags for human review under documented heuristics. They are not City policy, not a fiscal-health score, and not policy recommendations."
+}

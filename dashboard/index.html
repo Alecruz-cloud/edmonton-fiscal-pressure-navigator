@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edmonton Fiscal Pressure Navigator</title>
+<style>
+  :root{
+    --paper:#F2F4F3; --sheet:#FFFFFF; --ink:#17252C; --muted:#51626C;
+    --line:#C9D2D4; --line-soft:#DEE4E5;
+    --data:#0E76A8; --high:#A53A24; --watch:#A36A00; --verified:#12805A;
+    --high-bg:#F6E9E5; --watch-bg:#F5EEDD; --verified-bg:#E4F0EA; --illus-bg:#EBEEF0;
+    --serif:Georgia,'Palatino Linotype','Times New Roman',serif;
+    --sans:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+    --mono:'Cascadia Mono',Consolas,'Courier New',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55}
+  a{color:var(--data)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 64px}
+
+  .live-banner{background:var(--ink);color:#fff;text-align:center;padding:8px 16px;font-size:12.5px;letter-spacing:.04em}
+  .live-banner b{letter-spacing:.14em}
+
+  header.site{padding:36px 0 0}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase}
+  h1{font-family:var(--serif);font-weight:400;font-size:40px;letter-spacing:-.01em;margin:6px 0 4px}
+  .subline{color:var(--muted);max-width:70ch}
+  .coverage{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:18px 0 0;
+    border:1px solid var(--line);border-left:4px solid var(--watch);background:var(--sheet);
+    padding:10px 14px;font-size:13.5px}
+  .coverage .year{font-family:var(--serif);font-size:20px;margin-right:2px}
+
+  .stamp{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;
+    letter-spacing:.02em;color:var(--muted);border:1px dashed var(--line);border-radius:2px;
+    padding:2px 7px;background:var(--sheet);max-width:100%}
+  .chip{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.12em;
+    border-radius:2px;padding:2.5px 8px;text-transform:uppercase}
+  .chip.verified{color:var(--verified);background:var(--verified-bg);border:1px solid var(--verified)}
+  .chip.context{color:var(--muted);background:var(--illus-bg);border:1px solid var(--muted)}
+  .chip.high{color:var(--high);background:var(--high-bg);border:1px solid var(--high)}
+  .chip.watch{color:var(--watch);background:var(--watch-bg);border:1px solid var(--watch)}
+  .chip.draft{color:#fff;background:var(--muted);border:1px solid var(--muted)}
+
+  nav.tabs{display:flex;gap:4px;margin:30px 0 0;border-bottom:2px solid var(--ink)}
+  nav.tabs button{appearance:none;border:none;background:transparent;font-family:var(--sans);font-size:15px;
+    padding:10px 18px;cursor:pointer;color:var(--muted);border:2px solid transparent;border-bottom:none;position:relative;top:2px}
+  nav.tabs button[aria-selected="true"]{background:var(--sheet);color:var(--ink);font-weight:600;
+    border-color:var(--ink);border-bottom:2px solid var(--sheet)}
+  nav.tabs button:focus-visible{outline:3px solid var(--data);outline-offset:-3px}
+  .view{display:none;background:var(--sheet);border:1px solid var(--line);border-top:none;padding:28px}
+  .view.active{display:block}
+  @media (prefers-reduced-motion:no-preference){.view.active{animation:fade .25s ease}}
+  @keyframes fade{from{opacity:.4}to{opacity:1}}
+
+  h2{font-family:var(--serif);font-weight:400;font-size:26px;margin-bottom:4px}
+  h3{font-size:15px;font-weight:600;margin-bottom:6px}
+  .lede{color:var(--muted);max-width:78ch;margin-bottom:22px}
+
+  .signal{display:grid;grid-template-columns:150px 1fr 250px;border:1px solid var(--line);margin-bottom:18px}
+  .signal>div{padding:16px 18px}
+  .sig-rail{border-right:1px solid var(--line-soft);display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+  .sig-rail .idx{font-family:var(--serif);font-size:30px;color:var(--muted)}
+  .sig-main .why{margin:6px 0 12px;max-width:64ch;font-size:13.5px}
+  table.tests{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.tests th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);text-align:left;font-weight:600;padding:4px 10px 4px 0;border-bottom:1px solid var(--line)}
+  table.tests td{padding:6px 10px 6px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .trig{color:var(--high);font-weight:600}
+  .notrig{color:var(--muted)}
+  .sig-side{border-left:1px solid var(--line-soft);display:flex;flex-direction:column;gap:8px}
+  .sig-side .now{font-family:var(--serif);font-size:30px;line-height:1.1}
+  .sig-side .ref{font-size:12.5px;color:var(--muted)}
+  .open-ev{margin-top:auto;font-size:13.5px;font-weight:600;text-decoration:none;background:none;border:none;
+    color:var(--data);cursor:pointer;text-align:left;padding:0;font-family:var(--sans)}
+  .open-ev:hover{text-decoration:underline}
+  .truncation{border:1px solid var(--line);border-left:4px solid var(--muted);padding:12px 14px;font-size:13.5px;margin:20px 0 10px}
+  details.notflagged{font-size:13.5px;color:var(--muted);margin-top:10px}
+  details.notflagged summary{cursor:pointer}
+  .disclaimer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);margin-top:18px;padding-top:10px}
+
+  .dd-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:26px}
+  .formula{font-family:var(--mono);font-size:12.5px;background:var(--paper);border:1px solid var(--line);
+    padding:12px 14px;margin:12px 0;white-space:pre-wrap;overflow-x:auto}
+  .panel{border:1px solid var(--line);padding:16px 18px;margin-bottom:18px}
+  ul.notes{padding-left:18px;font-size:13.5px}
+  ul.notes li{margin-bottom:7px}
+  table.gold{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+  table.gold td{padding:7px 8px 7px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  table.gold td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
+  .chart-box{border:1px solid var(--line);padding:14px;margin:14px 0}
+  .chart-title{font-size:13px;font-weight:600}
+  .chart-sub{font-size:12px;color:var(--muted);margin-bottom:8px}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin:6px 0 2px}
+  .legend .key{display:inline-block;width:18px;height:0;border-top:2.5px solid;margin-right:5px;vertical-align:middle}
+  select#metric-pick{font-family:var(--sans);font-size:14px;padding:6px 8px;border:1px solid var(--line);
+    background:var(--sheet);max-width:100%}
+  #tooltip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;font-family:var(--mono);
+    font-size:11.5px;padding:5px 9px;border-radius:2px;display:none;z-index:9}
+
+  /* verdict board (executive view) */
+  table.board{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  table.board th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);text-align:left;font-weight:600;padding:4px 10px 4px 0;border-bottom:1px solid var(--line)}
+  table.board td{padding:7px 10px 7px 0;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+  table.board td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+  .dot.high{background:var(--high)} .dot.watch{background:var(--watch)} .dot.none{background:#B9C4C9}
+
+  /* small-multiples grid (explorer) */
+  .mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin:12px 0 24px}
+  button.mini{border:1px solid var(--line);padding:10px 12px 8px;cursor:pointer;background:var(--sheet);
+    text-align:left;font-family:var(--sans);display:block;width:100%}
+  button.mini:hover{border-color:var(--data)}
+  button.mini:focus-visible{outline:3px solid var(--data);outline-offset:-3px}
+  button.mini.sel{border:2px solid var(--ink);padding:9px 11px 7px}
+  .mini .nm{font-size:12.5px;font-weight:600;line-height:1.3;min-height:33px;color:var(--ink)}
+  .mini .val{font-family:var(--serif);font-size:19px;margin:1px 0 2px;color:var(--ink)}
+  .mini-note{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+
+  /* Alberta context map */
+  .map-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:26px}
+  .map-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+  .map-controls select{font-family:var(--sans);font-size:14px;padding:6px 8px;border:1px solid var(--line);background:var(--sheet)}
+  svg.abmap{width:100%;height:auto;display:block}
+  .abmap .prov{fill:#EDF1F2;stroke:var(--muted);stroke-width:1}
+  .abmap circle.city{stroke:#fff;stroke-width:1.2;cursor:pointer}
+  .abmap circle.nul{fill:#D8DEE1;stroke:var(--muted);stroke-width:1;stroke-dasharray:2 2}
+  .abmap circle.subject{stroke:var(--ink);stroke-width:2}
+  .abmap text.lbl{font-family:var(--sans);font-size:11px;fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+  .map-legend{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
+  .ramp{width:140px;height:10px;border:1px solid var(--line)}
+  .swatch{display:inline-block;width:11px;height:11px;border:1px solid var(--muted);vertical-align:-1px;margin-right:5px}
+  table.rank{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.rank th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);text-align:left;font-weight:600;padding:4px 8px 4px 0;border-bottom:1px solid var(--line)}
+  table.rank td{padding:5px 8px 5px 0;border-bottom:1px solid var(--line-soft)}
+  table.rank td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
+  table.rank tr.subject td{background:#EAF2F7;font-weight:600}
+
+  /* methodology */
+  table.rules{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0 6px}
+  table.rules th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);text-align:left;font-weight:600;padding:4px 10px 4px 0;border-bottom:1px solid var(--line)}
+  table.rules td{padding:6px 10px 6px 0;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  .cov{display:flex;align-items:flex-end;gap:10px;margin:12px 0 4px}
+  .cov .col{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .cov .bar{width:34px;background:var(--data);opacity:.8}
+  .cov .cap{font-family:var(--mono);font-size:10px;color:var(--muted)}
+
+  .sheet{max-width:720px;margin:0 auto;background:var(--sheet);padding:8px 6px}
+  .sheet .rule{border:none;border-top:2px solid var(--ink);margin:14px 0 18px}
+  .sheet section{margin-bottom:20px}
+  .sheet ol,.sheet ul{padding-left:20px;font-size:14px}
+  .sheet li{margin-bottom:6px}
+  .no-policy{border:1px solid var(--ink);padding:12px 14px;font-size:13.5px;margin-top:18px}
+
+  footer.site{margin-top:26px;font-size:12.5px;color:var(--muted)}
+  footer.site .stamp{margin-top:6px}
+
+  @media (max-width:860px){
+    .signal{grid-template-columns:1fr}
+    .sig-rail{flex-direction:row;align-items:center;border-right:none;border-bottom:1px solid var(--line-soft)}
+    .sig-side{border-left:none;border-top:1px solid var(--line-soft)}
+    .dd-grid{grid-template-columns:1fr}
+    .map-grid{grid-template-columns:1fr}
+    nav.tabs{flex-wrap:wrap}
+    h1{font-size:30px}
+  }
+  @media print{
+    .live-banner,nav.tabs,footer.site{display:none}
+    .view{display:none;border:none}
+    #view-brief{display:block}
+    body{background:#fff}
+  }
+</style>
+</head>
+<body>
+
+<div class="live-banner"><b>LIVE BUILD</b> · computed from the curated metric mart · pressure rules v1.2 (owner-approved 2026-07-17) · context map from StatCan 2021 boundaries (owner-approved source) · every figure traceable to workbook › schedule › variable code › year</div>
+
+<div class="wrap">
+
+<header class="site">
+  <div class="eyebrow">Pre-budget review instrument · City of Edmonton · Municipal code 0098</div>
+  <h1>Edmonton Fiscal Pressure Navigator</h1>
+  <p class="subline">Identifies at most three financial pressure areas that deserve deeper management review
+     before a budget or capital-planning cycle. It supports prioritization for review — it does not make
+     policy decisions or assess financial health.</p>
+  <div class="coverage" id="coverage-box"></div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Views">
+  <button role="tab" aria-selected="true"  aria-controls="view-exec"   id="tab-exec">1 · Executive Review</button>
+  <button role="tab" aria-selected="false" aria-controls="view-drill"  id="tab-drill">2 · Evidence Explorer</button>
+  <button role="tab" aria-selected="false" aria-controls="view-map"    id="tab-map">3 · Alberta Context Map</button>
+  <button role="tab" aria-selected="false" aria-controls="view-method" id="tab-method">4 · Methodology</button>
+  <button role="tab" aria-selected="false" aria-controls="view-brief"  id="tab-brief">5 · Management Brief</button>
+</nav>
+
+<section class="view active" id="view-exec" role="tabpanel" aria-labelledby="tab-exec">
+  <h2>Review priorities</h2>
+  <p class="lede">No more than three signals, ranked under
+     <span class="stamp">governance › pressure_rules.md · v1.2</span>. A signal is a transparent flag for
+     human review — never a score. <b>High review priority</b> requires at least two independent tests,
+     including one Edmonton historical test. Calgary and Alberta-city evidence is supporting context only.</p>
+  <div id="signals-root"></div>
+  <div class="truncation" id="truncation-box"></div>
+  <div class="panel" style="margin-top:20px">
+    <h3>Verdict board — every metric evaluated this run <span class="chip verified">rules v1.2 · full evidence published</span></h3>
+    <p style="font-size:12.5px;color:var(--muted);margin:4px 0 2px">All evaluated metrics with their verdicts,
+       not only the surfaced signals — flagged or not, each row opens its full test evidence. This is a
+       governance disclosure, not a KPI scoreboard.</p>
+    <table class="board" id="board-root"></table>
+  </div>
+  <details class="notflagged" id="notflagged-box"><summary></summary><div></div></details>
+  <p class="disclaimer" id="disclaimer-box"></p>
+</section>
+
+<section class="view" id="view-drill" role="tabpanel" aria-labelledby="tab-drill">
+  <h2>Evidence explorer</h2>
+  <p class="lede">The full evaluated set at a glance — every card opens to its Edmonton trend, formula,
+     source trace, data-quality notes, and clearly labelled supporting context.</p>
+  <div class="mini-grid" id="mini-grid" role="list" aria-label="Evaluated metrics"></div>
+  <p class="mini-note" id="mini-note"></p>
+  <p style="margin-bottom:18px"><label for="metric-pick" style="font-size:13px;color:var(--muted)">All mart metrics
+     (including base inputs):</label> <select id="metric-pick" aria-label="Choose a metric"></select></p>
+  <div class="dd-grid" id="dd-root"></div>
+</section>
+
+<section class="view" id="view-map" role="tabpanel" aria-labelledby="tab-map">
+  <h2>Alberta context map</h2>
+  <p class="lede">Where Edmonton sits among Alberta's reporting cities on the four comparison classes approved
+     in <span class="stamp">governance › pressure_rules.md · v1.2</span>. Supporting context only —
+     <b>cross-sectional position can never create a high-priority signal</b>, and this view generates none.
+     It is a descriptive display with full coverage disclosure, not a performance ranking.</p>
+  <div class="map-controls">
+    <label for="map-metric" style="font-size:13px;color:var(--muted)">Metric:</label>
+    <select id="map-metric" aria-label="Map metric"></select>
+    <label for="map-year" style="font-size:13px;color:var(--muted)">Year:</label>
+    <select id="map-year" aria-label="Map year"></select>
+    <span id="map-provisional"></span>
+  </div>
+  <div class="map-grid">
+    <div>
+      <div class="chart-box" style="margin-top:0">
+        <div id="map-holder"></div>
+        <div class="map-legend" id="map-legend"></div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px">
+        Bubble position marks the city's census-subdivision centroid; bubble colour encodes the metric value
+        (equal size — city scale is deliberately not encoded). Edmonton is outlined in ink.</p>
+    </div>
+    <div>
+      <div class="panel" id="map-side"></div>
+      <div class="panel">
+        <h3>Source &amp; scope</h3>
+        <ul class="notes">
+          <li><b>Geometry.</b> <span class="stamp">raw › lcsd000b21a_e.zip › StatCan 2021 CSD cartographic boundaries</span>
+              — owner-approved external source (2026-07-17), reprojected EPSG:3347 → 4326, outline simplified 1,500 m.</li>
+          <li><b>City set &amp; matching.</b> <span class="stamp">governance › municipality_crosswalk.csv · crosswalk_signoff.md</span>
+              — 19 cities, geo/context scope only; Lloydminster located by its Alberta part.</li>
+          <li><b>Values.</b> <span class="stamp">pipeline › build_geo.py › financial_long.csv</span> — same guards as the
+              mart; the median of these per-city values is verified to reproduce the mart's published median
+              for every metric-year (tests/test_geo.py).</li>
+          <li><b>Never shown here:</b> per-capita peer values (structurally unavailable — population joins are
+              approved for Edmonton and Calgary only) and any signal or score.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="view" id="view-method" role="tabpanel" aria-labelledby="tab-method">
+  <h2>Methodology — how a signal earns its flag</h2>
+  <p class="lede">The complete rule set behind every verdict, on screen rather than buried in code. Thresholds
+     are analytical heuristics for review prioritization, stored and version-controlled in
+     <span class="stamp">governance › pressure_rules.md · v1.2 · owner-approved 2026-07-17</span>. They are
+     not City policy and do not define financial health.</p>
+  <div id="method-root"></div>
+</section>
+
+<section class="view" id="view-brief" role="tabpanel" aria-labelledby="tab-brief">
+  <div class="sheet" id="brief-root"></div>
+</section>
+
+<footer class="site">
+  <div>Built by the fixed pipeline (<span class="stamp">pipeline › build_mart.py · detect_signals.py · build_geo.py</span>) from
+    <span class="stamp">data › raw (read-only)</span>. Known-answer test suite: see <span class="stamp">tests/</span>.</div>
+</footer>
+
+</div>
+
+<div id="tooltip" role="status"></div>
+
+<script src="data.js"></script>
+<script src="geo.js"></script>
+<script>
+const MART = window.MART, SIG = window.SIGNALS, GEO = window.GEO;
+const YEARS = [2018,2019,2020,2021,2022,2023,2024,2025];
+const REC = MART.records;
+
+/* ---------- helpers ---------- */
+const rowsOf = (mcode, mid) => REC.filter(r=>r.municipality_code===mcode && r.metric_id===mid);
+const seriesOf = (mcode, mid) => {
+  const m={}; rowsOf(mcode, mid).forEach(r=>{
+    if((r.quality_status==="reported_value"||r.quality_status==="reported_zero") && r.value!==null) m[r.year]=r.value;
+  });
+  return m;
+};
+const row = (y,mcode,mid) => REC.find(r=>r.year===y&&r.municipality_code===mcode&&r.metric_id===mid);
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function fmtVal(v, unit, digits){
+  if(v===null||v===undefined) return "—";
+  if(unit==="%") return v.toFixed(digits??2)+"%";
+  if(unit && unit.startsWith("$")){
+    const d = digits ?? (Math.abs(v) >= 10000 ? 0 : 2);
+    return "$"+v.toLocaleString("en-CA",{minimumFractionDigits:d,maximumFractionDigits:d});
+  }
+  if(unit==="persons"||unit==="positions") return v.toLocaleString("en-CA");
+  return v.toLocaleString("en-CA",{maximumFractionDigits:digits??2});
+}
+const statusChip = s => s==="High review priority" ? '<span class="chip high">High review priority</span>'
+                     : s==="Watch" ? '<span class="chip watch">Watch</span>'
+                     : '<span class="chip context">Not flagged</span>';
+
+/* ---------- header coverage ---------- */
+document.getElementById("coverage-box").innerHTML =
+  `<span class="year">${SIG.reporting_year}</span>
+   <span>Reporting year · ${esc(SIG.coverage_note)} — peer and Alberta-city comparisons are <b>provisional</b>.</span>
+   <span class="chip verified">verified</span>
+   <span class="stamp">raw › ${SIG.reporting_year}_financial_year.xlsx › AA(1)-Debt › footer row</span>`;
+
+/* ---------- tabs ---------- */
+const tabs = document.querySelectorAll('nav.tabs button');
+function selectTab(btn){
+  tabs.forEach(t=>{
+    const on = t===btn;
+    t.setAttribute('aria-selected', on);
+    document.getElementById(t.getAttribute('aria-controls')).classList.toggle('active', on);
+  });
+}
+tabs.forEach(t=>t.addEventListener('click',()=>selectTab(t)));
+// deep-link support: #view-drill / #view-brief select the tab on load (also used for screenshots)
+if(location.hash){
+  const target=document.querySelector(`nav.tabs button[aria-controls="${location.hash.slice(1)}"]`);
+  if(target) selectTab(target);
+}
+
+/* ---------- executive review ---------- */
+function testRow(t){
+  let vals = Object.entries(t.values).filter(([k])=>k!=="adverse_direction")
+    .map(([k,v])=>{
+      if(typeof v!=="object" || v===null) return `${k} = ${v}`;
+      const parts = Object.entries(v).filter(([kk])=>kk!=="triggered")
+        .map(([kk,vv])=>`${kk.replace(/_/g," ")} ${vv}`).join(", ");
+      return `${k}: ${parts}${v.triggered!==undefined?` — ${v.triggered?"triggered":"not triggered"}`:""}`;
+    }).join(" · ");
+  const cx = t.supporting_only ? ' <span class="chip context">supporting only</span>' : "";
+  const prov = t.provisional ? ' <span class="chip context">provisional</span>' : "";
+  return `<tr><td><b>${t.test_id}</b> ${esc(t.name)}${cx}${prov}<br>
+          <span style="color:var(--muted)">${esc(t.rule)}</span></td>
+          <td style="font-family:var(--mono);font-size:11px">${esc(vals)}</td>
+          <td class="${t.triggered?'trig':'notrig'}">${t.triggered?'Triggered':'Not triggered'}</td></tr>`;
+}
+function sparkline(hist, w=230, h=44){
+  const v = YEARS.map(y=>hist[String(y)]).filter(x=>x!==undefined);
+  if(v.length<2) return "";
+  const p=4, min=Math.min(...v), max=Math.max(...v), span=(max-min)||1;
+  const pts=v.map((y,i)=>[p+i*(w-2*p)/(v.length-1), h-p-(y-min)*(h-2*p)/span]);
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">
+    <polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#0E76A8" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="${pts.at(-1)[0]}" cy="${pts.at(-1)[1]}" r="3.5" fill="#0E76A8"/></svg>`;
+}
+(function renderSignals(){
+  const root = document.getElementById("signals-root");
+  root.innerHTML = SIG.signals.map((s,i)=>{
+    const r0 = row(SIG.reporting_year,"0098",s.metric_id);
+    const first = s.history["2018"];
+    const trace = r0.source_schedule==="derived"
+      ? `derived › ${r0.source_variable_code} › ${esc(r0.formula)}`
+      : `${r0.source_file} › ${r0.source_schedule} › ${r0.source_variable_code}`;
+    return `<article class="signal">
+      <div class="sig-rail"><span class="idx">S${i+1}</span>${statusChip(s.status)}
+        <span class="chip verified">rules v1.2</span></div>
+      <div class="sig-main">
+        <h3>${esc(r0.metric_name)}</h3>
+        <p class="why">${esc(s.explanation)}</p>
+        <table class="tests"><thead><tr><th>Test</th><th>Values</th><th>Result</th></tr></thead>
+        <tbody>${s.tests.map(testRow).join("")}</tbody></table>
+      </div>
+      <div class="sig-side">
+        <div class="now">${fmtVal(s.latest, r0.unit)}</div>
+        <div class="ref">${SIG.reporting_year} · 2018: ${fmtVal(first, r0.unit)} · unit: ${esc(r0.unit)}</div>
+        ${sparkline(s.history)}
+        <span class="stamp">${trace}</span>
+        <button class="open-ev" data-metric="${s.metric_id}">Open evidence →</button>
+      </div></article>`;
+  }).join("");
+  root.querySelectorAll(".open-ev").forEach(b=>b.addEventListener("click",()=>{
+    document.getElementById("metric-pick").value = b.dataset.metric;
+    renderDrill(b.dataset.metric);
+    selectTab(document.getElementById("tab-drill"));
+    window.scrollTo({top:0});
+  }));
+
+  const tr = SIG.truncated_signals;
+  document.getElementById("truncation-box").innerHTML =
+    `<b>${tr.length} additional flagged metric${tr.length===1?"":"s"} not shown</b> (maximum of three signals per run): `
+    + tr.map(t=>`${esc(t.metric_id)} (${esc(t.status)})`).join(", ")
+    + ". Full evidence for each is available in the drill-down.";
+  const nf = SIG.not_flagged;
+  const nfBox = document.getElementById("notflagged-box");
+  nfBox.querySelector("summary").textContent = `${nf.length} metrics evaluated and not flagged`;
+  nfBox.querySelector("div").textContent = nf.map(x=>x.metric_id).join(" · ");
+  document.getElementById("disclaimer-box").textContent = SIG.disclaimer;
+})();
+
+/* ---------- drill-down ---------- */
+const ALL_RESULTS = {};   // metric_id -> full result, shown AND truncated (rules v1.2)
+SIG.signals.forEach(s=>ALL_RESULTS[s.metric_id]=s);
+(SIG.truncated_signals||[]).forEach(s=>{ if(s.tests) ALL_RESULTS[s.metric_id]=s; });
+(SIG.not_flagged||[]).forEach(s=>{ if(s.tests) ALL_RESULTS[s.metric_id]=s; });  // v1.2: every verdict verifiable
+const CONTEXT_OK = new Set(SIG.context_approved_metrics||[]);
+
+const FOLLOWUP = {
+  A:["Which revenue or expense categories account for the recent movement?",
+     "Is the movement concentrated in one year or spread across the period?"],
+  B:["How much of the movement reflects the limit or denominator changing rather than the balance itself?",
+     "Is the pace of debt growth consistent with the approved capital plan?"],
+  C:["How much of the assessment movement is market value versus new construction?",
+     "How does the rate structure interact with the assessment base over the period?"],
+  D:["Is the expense movement demand-driven (population, service standards) or price-driven (nominal costs)?",
+     "Does the function's share of total expense show the same pattern as its per-capita value?"]
+};
+
+function drawChart(mid, container){
+  const unit = (rowsOf("0098",mid)[0]||{}).unit || "";
+  const approved = CONTEXT_OK.has(mid);   // rules v1.2: peer context only for approved classes
+  const ed = seriesOf("0098",mid);
+  const cal = approved ? seriesOf("0046",mid) : {};
+  const med = approved ? seriesOf("AB_CITIES_MEDIAN",mid) : {};
+  const seriesList = [
+    {name:"Edmonton", data:ed, color:"#0E76A8", dash:""},
+    Object.keys(cal).length ? {name:"Calgary (context)", data:cal, color:"#51626C", dash:"6 4"} : null,
+    Object.keys(med).length ? {name:"AB cities median (context)", data:med, color:"#A36A00", dash:"2 4"} : null,
+  ].filter(Boolean);
+  const allVals = seriesList.flatMap(s=>YEARS.map(y=>s.data[y]).filter(v=>v!==undefined));
+  const lo=Math.min(...allVals), hi=Math.max(...allVals), pad=(hi-lo)*0.12||1;
+  const ymin=lo-pad, ymax=hi+pad;
+  const W=640,H=300,L=66,R=20,T=16,B=34;
+  const x=i=>L+i*(W-L-R)/(YEARS.length-1);
+  const y=v=>T+(ymax-v)*(H-T-B)/(ymax-ymin);
+  let svg="";
+  for(let g=0;g<5;g++){
+    const gv=ymin+(ymax-ymin)*g/4;
+    svg+=`<line x1="${L}" y1="${y(gv)}" x2="${W-R}" y2="${y(gv)}" stroke="#DEE4E5"/>`;
+    svg+=`<text x="${L-8}" y="${y(gv)+4}" text-anchor="end" font-size="10.5" fill="#51626C" font-family="Consolas,monospace">${fmtVal(gv,unit,unit==="%"?1:0)}</text>`;
+  }
+  YEARS.forEach((yr,i)=>svg+=`<text x="${x(i)}" y="${H-10}" text-anchor="middle" font-size="11" fill="#51626C" font-family="Consolas,monospace">${yr}</text>`);
+  seriesList.forEach(s=>{
+    const pts=YEARS.map((yr,i)=>s.data[yr]!==undefined?[x(i),y(s.data[yr]),yr,s.data[yr]]:null).filter(Boolean);
+    svg+=`<polyline points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="none" stroke="${s.color}" stroke-width="2" stroke-dasharray="${s.dash}" stroke-linejoin="round"/>`;
+    pts.forEach(p=>{ svg+=`<circle class="pt" data-label="${s.name} ${p[2]}: ${fmtVal(p[3],unit)}" cx="${p[0]}" cy="${p[1]}" r="4" fill="${s.color}" stroke="#fff" stroke-width="1.5"/>`; });
+    const last=pts.at(-1);
+    svg+=`<text x="${last[0]}" y="${last[1]-10}" text-anchor="end" font-size="11" font-weight="600" fill="#17252C">${fmtVal(last[3],unit,unit==="%"?2:0)}</text>`;
+  });
+  container.innerHTML =
+    `<div class="legend">${seriesList.map(s=>`<span><span class="key" style="border-color:${s.color};border-top-style:${s.dash? 'dashed':'solid'}"></span>${esc(s.name)}</span>`).join("")}</div>
+     <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Trend chart">${svg}</svg>`;
+  const tip=document.getElementById("tooltip");
+  container.querySelectorAll(".pt").forEach(c=>{
+    c.addEventListener("mousemove",e=>{ tip.style.display="block"; tip.textContent=c.dataset.label;
+      tip.style.left=(e.clientX+14)+"px"; tip.style.top=(e.clientY-30)+"px"; c.setAttribute("r","6"); });
+    c.addEventListener("mouseleave",()=>{ tip.style.display="none"; c.setAttribute("r","4"); });
+  });
+}
+
+function renderDrill(mid){
+  const root=document.getElementById("dd-root");
+  const r25 = row(SIG.reporting_year,"0098",mid) || rowsOf("0098",mid).at(-1);
+  const sig = ALL_RESULTS[mid];
+  const truncStatus = (SIG.truncated_signals.find(t=>t.metric_id===mid)||{}).status;
+  const metricStatus = sig ? sig.status : (truncStatus || "Not flagged");
+  const ed = seriesOf("0098",mid);
+  const yearsAvail = Object.keys(ed);
+  const trace = r25.source_schedule==="derived"
+    ? `derived › ${r25.source_variable_code}${r25.formula? " › "+r25.formula:""}`
+    : `20xx_financial_year.xlsx › ${r25.source_schedule} › ${r25.source_variable_code} › ${yearsAvail[0]}–${yearsAvail.at(-1)}`;
+  const medRow = row(SIG.reporting_year,"AB_CITIES_MEDIAN",mid);
+  const calRow = row(SIG.reporting_year,"0046",mid);
+  const goldPanel = mid==="debt_utilization" ? `
+      <div class="panel">
+        <h3>Gold example — Edmonton 2025 <span class="chip verified">verified known-answer suite · tests/</span></h3>
+        <table class="gold">
+          ${[["pop","Population"],["debt_total","Total debt"],["debt_limit","Debt limit"],
+             ["debt_utilization","Debt utilization"],["exp_total","Total expense"],
+             ["exp_per_capita","Expense per capita (nominal)"]].map(([id,label])=>{
+            const r=row(2025,"0098",id);
+            const tr = r.source_schedule==="derived" ? `derived › ${r.source_variable_code}`
+              : r.source_schedule==="population" ? `${r.source_file} › ${r.source_variable_code}`
+              : `${r.source_file} › ${r.source_schedule} › ${r.source_variable_code}`;
+            return `<tr><td>${label}</td><td class="num">${fmtVal(r.value,r.unit)}</td>
+                    <td><span class="stamp">${esc(tr)}</span></td></tr>`;}).join("")}
+        </table>
+      </div>` : "";
+  root.innerHTML = `
+    <div>
+      <div class="panel">
+        <h3>${esc(r25.metric_name)} ${statusChip(metricStatus)}${truncStatus?' <span class="chip context">not among top 3 — see truncation notice</span>':''}</h3>
+        <p style="font-size:13.5px">Unit: <b>${esc(r25.unit)}</b>${r25.unit.startsWith("$")?" — amounts are nominal; no inflation adjustment is applied.":""}</p>
+        ${r25.formula?`<div class="formula">${esc(r25.metric_id)} = ${esc(r25.formula)}</div>`:""}
+        <span class="stamp">${esc(trace)}</span>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">Edmonton trend, ${yearsAvail[0]}–${yearsAvail.at(-1)}</div>
+        <div class="chart-sub">Context series are supporting evidence only · 2025 peer values provisional · hover any point</div>
+        <div id="chart-holder"></div>
+      </div>
+      ${sig?`<div class="panel"><h3>Approved tests for this metric <span class="chip verified">rules v1.2</span></h3>
+        <table class="tests"><thead><tr><th>Test</th><th>Values</th><th>Result</th></tr></thead>
+        <tbody>${sig.tests.map(testRow).join("")}</tbody></table></div>`
+       :`<div class="panel"><h3>Approved tests</h3><p style="font-size:13.5px;color:var(--muted)">
+         This metric is not signal-eligible (no adverse direction is defined for it in
+         governance › pressure_rules.md), so no pressure tests apply. It appears here for
+         trend and trace verification only.</p></div>`}
+      ${goldPanel}
+    </div>
+    <div>
+      <div class="panel"><h3>Supporting context <span class="chip context">supporting only</span> <span class="chip context">2025 provisional</span></h3>
+        ${CONTEXT_OK.has(mid)?`
+        <table class="gold">
+          <tr><td>Calgary, ${SIG.reporting_year}</td><td class="num">${calRow&&calRow.value!==null?fmtVal(calRow.value,r25.unit):"—"}</td>
+              <td>${calRow&&calRow.value!==null?'<span class="stamp">crosswalk › 0046 · confirmed</span>':'<span class="chip context">not computed</span>'}</td></tr>
+          <tr><td>Alberta cities median, ${SIG.reporting_year}</td><td class="num">${medRow&&medRow.value!==null?fmtVal(medRow.value,r25.unit):"—"}</td>
+              <td>${medRow&&medRow.value!==null?`<span class="stamp">${esc(medRow.municipality_name)}</span>`
+                  :(medRow&&medRow.quality_status==="structurally_unavailable"
+                    ?`<span class="chip context">structurally unavailable</span> <span style="font-size:12px;color:var(--muted)">${esc(medRow.data_quality_note)}</span>`
+                    :'<span class="chip context">not computed</span>')}</td></tr>
+        </table>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Cross-sectional comparison alone can never create a high-priority signal.</p>
+        ${window.GEO && window.GEO.values[mid] ? `<p style="margin-top:8px"><button class="open-ev to-map" data-metric="${mid}">View on the Alberta context map →</button></p>` : ""}`
+        :`<p style="font-size:13px;color:var(--muted)"><b>Comparison not approved as valid for this metric class</b>
+          (governance › pressure_rules.md v1.2: peer context is approved only for utilization ratios,
+          per-capita measures, and mill rates). No peer values are shown.</p>`}
+      </div>
+      <div class="panel"><h3>Data quality &amp; comparability</h3>
+        <ul class="notes">
+          <li><b>Nominal dollars.</b> No inflation adjustment is approved or applied.</li>
+          <li><b>Population source rule.</b> Per-capita values use only the Alberta CSD estimates (Edmonton 4811061, Calgary 4806016); the financial workbooks' stale population field is never used.</li>
+          <li><b>Missing ≠ zero.</b> Blank source cells stay <span class="stamp">missing</span>; they are never converted to 0.</li>
+          <li><b>Code stability.</b> ${esc(r25.source_schedule==="derived"?"All input codes verified present 2018–2025.":"Variable code verified present in row 3 for all years 2018–2025.")}</li>
+          ${r25.data_quality_note?`<li>${esc(r25.data_quality_note)}</li>`:""}
+        </ul>
+      </div>
+      <div class="panel"><h3>Follow-up questions for review <span class="chip context">prompts for human review</span></h3>
+        <ul class="notes">${(FOLLOWUP[r25.metric_domain]||[]).map(q=>`<li>${esc(q)}</li>`).join("")}</ul>
+      </div>
+    </div>`;
+  root.querySelectorAll(".to-map").forEach(b=>b.addEventListener("click",()=>{
+    const msel=document.getElementById("map-metric");
+    if(msel){ msel.value=b.dataset.metric; renderMap(); }
+    selectTab(document.getElementById("tab-map"));
+    window.scrollTo({top:0});
+  }));
+  drawChart(mid, document.getElementById("chart-holder"));
+}
+
+(function initDrill(){
+  const pick=document.getElementById("metric-pick");
+  const ids=[...new Set(REC.filter(r=>r.municipality_code==="0098").map(r=>r.metric_id))];
+  const flagged=new Set([...SIG.signals.map(s=>s.metric_id), ...SIG.truncated_signals.map(t=>t.metric_id)]);
+  ids.sort((a,b)=>(flagged.has(b)-flagged.has(a))||a.localeCompare(b));
+  pick.innerHTML=ids.map(id=>{
+    const nm=(rowsOf("0098",id)[0]||{}).metric_name||id;
+    const tag=SIG.signals.find(s=>s.metric_id===id)?" ★ signal":(flagged.has(id)?" · flagged":"");
+    return `<option value="${id}">${esc(nm)}${tag}</option>`;
+  }).join("");
+  pick.value="debt_utilization";
+  pick.addEventListener("change",()=>renderDrill(pick.value));
+  renderDrill("debt_utilization");
+})();
+
+/* ---------- shared cross-link + evaluated set ---------- */
+function markMini(mid){
+  document.querySelectorAll("#mini-grid .mini").forEach(m=>m.classList.toggle("sel", m.dataset.metric===mid));
+}
+function openDrill(mid, where){
+  const pick=document.getElementById("metric-pick");
+  pick.value=mid;
+  renderDrill(mid);
+  markMini(mid);
+  selectTab(document.getElementById("tab-drill"));
+  if(where==="dd") document.getElementById("dd-root").scrollIntoView({behavior:"smooth",block:"start"});
+  else window.scrollTo({top:0});
+}
+document.getElementById("metric-pick").addEventListener("change",e=>markMini(e.target.value));
+
+const EVALUATED = Object.keys(ALL_RESULTS).map(mid=>{
+  const s=ALL_RESULTS[mid];
+  const r=rowsOf("0098",mid)[0]||{};
+  const surfIdx=SIG.signals.findIndex(x=>x.metric_id===mid);
+  const w = s.status==="High review priority"?0 : s.status==="Watch"?1 : 2;
+  let latest=s.latest;
+  if(latest===undefined||latest===null){
+    const ser=seriesOf("0098",mid); const ys=Object.keys(ser);
+    latest = ys.length ? ser[ys.at(-1)] : null;
+  }
+  return {mid, s, name:r.metric_name||mid, unit:r.unit||"", w, surfIdx:surfIdx<0?99:surfIdx, latest};
+}).sort((a,b)=>a.w-b.w || a.surfIdx-b.surfIdx || a.name.localeCompare(b.name));
+
+/* ---------- verdict board (executive view) ---------- */
+(function renderBoard(){
+  const counts={0:0,1:0,2:0}; EVALUATED.forEach(e=>counts[e.w]++);
+  const rows=EVALUATED.map(e=>{
+    const trig=e.s.tests.filter(t=>t.triggered).map(t=>t.test_id);
+    const dot=e.w===0?"high":e.w===1?"watch":"none";
+    const surf=e.surfIdx<99?` <span class="chip verified">S${e.surfIdx+1}</span>`:"";
+    return `<tr>
+      <td style="white-space:nowrap"><span class="dot ${dot}"></span>${statusChip(e.s.status)}${surf}</td>
+      <td>${esc(e.name)}</td>
+      <td class="num">${fmtVal(e.latest,e.unit)}</td>
+      <td style="font-family:var(--mono);font-size:11px">${trig.length?trig.join(" · "):"—"}</td>
+      <td><button class="open-ev" data-metric="${e.mid}">evidence →</button></td></tr>`;
+  }).join("");
+  document.getElementById("board-root").innerHTML=
+    `<thead><tr><th>Verdict (${counts[0]} High · ${counts[1]} Watch · ${counts[2]} not flagged)</th>
+     <th>Metric</th><th>Latest (${SIG.reporting_year})</th><th>Triggered tests</th><th></th></tr></thead>
+     <tbody>${rows}</tbody>`;
+  document.querySelectorAll("#board-root .open-ev").forEach(b=>
+    b.addEventListener("click",()=>openDrill(b.dataset.metric,"top")));
+})();
+
+/* ---------- small-multiples grid (explorer) ---------- */
+(function renderMiniGrid(){
+  const grid=document.getElementById("mini-grid");
+  grid.innerHTML=EVALUATED.map(e=>`
+    <button class="mini" role="listitem" data-metric="${e.mid}" aria-label="Open evidence for ${esc(e.name)}">
+      <span style="display:flex;justify-content:space-between;align-items:center;gap:6px">${statusChip(e.s.status)}${e.surfIdx<99?`<span class="chip verified">S${e.surfIdx+1}</span>`:""}</span>
+      <div class="nm">${esc(e.name)}</div>
+      <div class="val">${fmtVal(e.latest,e.unit)}</div>
+      ${sparkline(seriesOf("0098",e.mid),186,36)}
+    </button>`).join("");
+  document.getElementById("mini-note").textContent=
+    `${EVALUATED.length} metrics evaluated under rules v1.2 — ${SIG.signals.length} surfaced as signals, `+
+    `${SIG.truncated_signals.length} flagged beyond the three-signal maximum, ${SIG.not_flagged.length} not flagged. `+
+    `Cards are ordered by verdict, then surfaced order, then name; the Edmonton 2018–2025 trend is sketched in each card.`;
+  grid.querySelectorAll(".mini").forEach(m=>m.addEventListener("click",()=>openDrill(m.dataset.metric,"dd")));
+  markMini("debt_utilization");
+})();
+
+/* ---------- Alberta context map ---------- */
+function mapProjection(){
+  const pts=GEO.outline.flat();
+  let lat0=90,lat1=-90,lon0=180,lon1=-180;
+  pts.forEach(p=>{ if(p[1]<lat0)lat0=p[1]; if(p[1]>lat1)lat1=p[1]; if(p[0]<lon0)lon0=p[0]; if(p[0]>lon1)lon1=p[0]; });
+  const k=Math.cos((lat0+lat1)/2*Math.PI/180), W=430, pad=16;
+  const s=(W-2*pad)/((lon1-lon0)*k);
+  const H=Math.round((lat1-lat0)*s+2*pad);
+  return {W,H,x:lon=>pad+(lon-lon0)*k*s,y:lat=>pad+(lat1-lat)*s};
+}
+function rampColor(t){
+  const a=[221,232,239], b=[14,118,168];
+  return `rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(",")})`;
+}
+function renderMap(){
+  const mid=document.getElementById("map-metric").value;
+  const year=document.getElementById("map-year").value;
+  const meta=GEO.metrics[mid], vals=GEO.values[mid][year], reasons=(GEO.null_reasons[mid]||{})[year]||{};
+  const med=GEO.medians[mid][year];
+  const nums=GEO.cities.map(c=>vals[c.code]).filter(v=>v!==null&&v!==undefined);
+  const holder=document.getElementById("map-holder");
+  if(!nums.length){ holder.innerHTML='<p style="color:var(--muted)">No reported values for this metric-year.</p>'; return; }
+  const lo=Math.min(...nums), hi=Math.max(...nums), span=(hi-lo)||1;
+  const P=mapProjection();
+  const path=GEO.outline.map(ring=>"M"+ring.map(p=>P.x(p[0]).toFixed(1)+","+P.y(p[1]).toFixed(1)).join("L")+"Z").join("");
+  const order=[...GEO.cities].sort((a,b)=>(a.code==="0098")-(b.code==="0098"));
+  let svg=`<path class="prov" d="${path}"/>`;
+  order.forEach(c=>{
+    const v=vals[c.code], subject=c.code==="0098";
+    const cx=P.x(c.lon).toFixed(1), cy=P.y(c.lat).toFixed(1), r=subject?9:6.5;
+    if(v===null||v===undefined){
+      svg+=`<circle class="city nul${subject?" subject":""}" data-label="${esc(c.name)} ${year}: ${esc(reasons[c.code]||"no value")}" cx="${cx}" cy="${cy}" r="${r}"/>`;
+    }else{
+      svg+=`<circle class="city${subject?" subject":""}" data-label="${esc(c.name)} ${year}: ${fmtVal(v,meta.unit)}" cx="${cx}" cy="${cy}" r="${r}" fill="${rampColor((v-lo)/span)}"/>`;
+    }
+  });
+  const ed=GEO.cities.find(c=>c.code==="0098"), cal=GEO.cities.find(c=>c.code==="0046");
+  svg+=`<text class="lbl" x="${(P.x(ed.lon)+12).toFixed(1)}" y="${(P.y(ed.lat)+4).toFixed(1)}">Edmonton</text>`;
+  svg+=`<text class="lbl" x="${(P.x(cal.lon)+12).toFixed(1)}" y="${(P.y(cal.lat)+4).toFixed(1)}">Calgary</text>`;
+  holder.innerHTML=`<svg class="abmap" viewBox="0 0 ${P.W} ${P.H}" role="img" aria-label="Alberta reporting cities — ${esc(meta.name)}, ${year}">${svg}</svg>`;
+  const stops=Array.from({length:24},(_,i)=>rampColor(i/23));
+  document.getElementById("map-legend").innerHTML=
+    `<span>${fmtVal(lo,meta.unit)}</span>
+     <span class="ramp" style="background:linear-gradient(90deg,${stops.join(",")})"></span>
+     <span>${fmtVal(hi,meta.unit)}</span>
+     <span><span class="swatch" style="background:#D8DEE1;border-style:dashed"></span>no value / not in the city set</span>`;
+  document.getElementById("map-provisional").innerHTML = year==="2025"
+    ? '<span class="chip watch">2025 provisional — 306 of 332 returns</span>' : "";
+  const rows=GEO.cities.map(c=>({c,v:vals[c.code]}))
+    .sort((a,b)=>((b.v===null||b.v===undefined)?0:1)-((a.v===null||a.v===undefined)?0:1) || (b.v??-Infinity)-(a.v??-Infinity));
+  const included=rows.filter(r=>r.v!==null&&r.v!==undefined&&r.c.code!=="0098").length;
+  document.getElementById("map-side").innerHTML=`
+    <h3>${esc(meta.name)}, ${year} <span class="chip context">supporting only</span></h3>
+    <table class="gold" style="margin-bottom:10px">
+      <tr><td>Edmonton</td><td class="num">${vals["0098"]!==null&&vals["0098"]!==undefined?fmtVal(vals["0098"],meta.unit):"—"}</td><td></td></tr>
+      <tr><td>Reporting-city median (excl. Edmonton, n=${med.n})</td><td class="num">${med.value!==null?fmtVal(med.value,meta.unit):"—"}</td>
+          <td><span class="stamp">verified equal to the mart median · tests/test_geo.py</span></td></tr>
+    </table>
+    <table class="rank"><thead><tr><th>City (${included} peers reporting)</th><th style="text-align:right">Value</th></tr></thead>
+      <tbody>${rows.map(({c,v})=>`<tr class="${c.code==="0098"?"subject":""}">
+        <td>${esc(c.name)}${c.code==="0046"?' <span class="chip context">scale peer</span>':""}</td>
+        <td class="num">${v!==null&&v!==undefined?fmtVal(v,meta.unit):`<span style="color:var(--muted)">— ${esc(reasons[c.code]||"no value")}</span>`}</td></tr>`).join("")}
+      </tbody></table>
+    <p style="font-size:12px;color:var(--muted);margin-top:8px">Sorted by value for scanability — a descriptive
+      display with coverage disclosed, not a performance ranking. Municipal scale, responsibilities and service
+      structures differ materially across these cities.</p>`;
+  const tip=document.getElementById("tooltip");
+  document.querySelectorAll(".abmap .city").forEach(el=>{
+    el.addEventListener("mousemove",e=>{ tip.style.display="block"; tip.textContent=el.dataset.label;
+      tip.style.left=(e.clientX+14)+"px"; tip.style.top=(e.clientY-30)+"px"; });
+    el.addEventListener("mouseleave",()=>tip.style.display="none");
+  });
+}
+(function initMap(){
+  if(!GEO){ document.getElementById("map-holder").innerHTML="<p>geo.js not found — run pipeline/build_geo.py</p>"; return; }
+  const msel=document.getElementById("map-metric"), ysel=document.getElementById("map-year");
+  msel.innerHTML=Object.entries(GEO.metrics).map(([id,m])=>`<option value="${id}">${esc(m.name)}</option>`).join("");
+  ysel.innerHTML=Object.keys(GEO.city_set_by_year).map(y=>
+    `<option value="${y}"${String(SIG.reporting_year)===y?" selected":""}>${y}</option>`).join("");
+  msel.value="debt_utilization";
+  msel.addEventListener("change",renderMap);
+  ysel.addEventListener("change",renderMap);
+  renderMap();
+})();
+
+/* ---------- methodology ---------- */
+(function renderMethod(){
+  const root=document.getElementById("method-root");
+  const gold={};
+  ["pop","debt_total","debt_limit","debt_utilization","exp_total","exp_per_capita"].forEach(id=>gold[id]=row(2025,"0098",id));
+  const cov=MART.meta.returns_received_by_year;
+  const covMax=Math.max(...Object.values(cov));
+  root.innerHTML=`
+  <div class="dd-grid">
+   <div>
+    <div class="panel"><h3>Principles (fixed by the living spec)</h3>
+      <ol class="notes" style="font-size:13.5px">
+        <li>A signal is a transparent flag for human review — never a score.</li>
+        <li><b>High review priority</b> requires at least two independent tests, including at least one Edmonton historical test.</li>
+        <li>Cross-sectional comparison alone (CX-1) can never create a high-priority signal.</li>
+        <li>At most three signals are surfaced per run.</li>
+        <li>Every signal shows its triggered tests, the underlying values, the thresholds applied, and full source traces.</li>
+      </ol></div>
+    <div class="panel"><h3>Approved tests <span class="chip verified">rules v1.2</span></h3>
+      <table class="rules">
+        <thead><tr><th>Test</th><th>Family</th><th>Triggers when…</th></tr></thead>
+        <tbody>
+        <tr><td><b>EH-1</b><br>historical level</td><td>Edmonton historical</td><td>the latest value is the most adverse in the 8-year history (new max for up-adverse metrics, new min for down-adverse)</td></tr>
+        <tr><td><b>EH-2</b><br>recent movement</td><td>Edmonton historical</td><td>3-year adverse change meets the class threshold — utilization ratios ≥ 3.0 pp · shares ≥ 2.0 pp · per-capita dollars ≥ 10% · mill rates ≥ 10% · FTE per 1,000 ≥ 0.50 · balance-sheet dollars ≥ 15% of the 8-year median absolute level</td></tr>
+        <tr><td><b>PP-1</b><br>pace vs population</td><td>pace</td><td>the numerator's 3-year growth exceeds population growth by ≥ 5.0 pp (up-adverse) or trails it by ≥ 5.0 pp (down-adverse)</td></tr>
+        <tr><td><b>CR-1</b><br>capacity-ratio movement</td><td>capacity</td><td>a utilization ratio sits ≥ 5.0 pp above its 8-year minimum and above its 8-year median</td></tr>
+        <tr><td><b>CX-1</b><br>supporting comparison</td><td>context only</td><td>Edmonton differs in the adverse direction ≥ 10 pp (utilization) or ≥ 15% relative (per-capita, mill rates) vs Calgary or the Alberta reporting-city median — subject excluded from its own median, municipalities named, 2025 provisional. <b>Can never create High.</b></td></tr>
+        </tbody></table></div>
+    <div class="panel"><h3>Classification &amp; selection</h3>
+      <table class="rules"><thead><tr><th>Status</th><th>Rule</th></tr></thead><tbody>
+        <tr><td style="white-space:nowrap"><span class="dot high"></span><b>High review priority</b></td><td>at least 2 of {EH-1, EH-2, PP-1, CR-1} triggered, including at least 1 of {EH-1, EH-2}</td></tr>
+        <tr><td style="white-space:nowrap"><span class="dot watch"></span><b>Watch</b></td><td>one or more approved tests triggered without meeting the High criteria — including the CX-1-only case</td></tr>
+        <tr><td style="white-space:nowrap"><span class="dot none"></span><b>Not flagged</b></td><td>no approved test triggered — the full test evidence for the verdict is still published</td></tr>
+      </tbody></table>
+      <p style="font-size:13px;margin-top:8px">When more than three signals qualify: High before Watch → number of
+        triggered core tests → EH-2 exceedance vs threshold → largest other exceedance → alphabetical metric id.
+        Truncation is always disclosed, naming every overflowed metric and its status.</p></div>
+   </div>
+   <div>
+    <div class="panel"><h3>Worked gold example — Edmonton 2025 <span class="chip verified">known-answer suite · tests/</span></h3>
+      <div class="formula">debt_utilization = debt_total / debt_limit
+= ${fmtVal(gold.debt_total.value,"$")} / ${fmtVal(gold.debt_limit.value,"$")}
+= ${fmtVal(gold.debt_utilization.value,"%")}</div>
+      <div class="formula">exp_per_capita = exp_total / pop
+= ${fmtVal(gold.exp_total.value,"$")} / ${gold.pop.value.toLocaleString("en-CA")} persons
+= ${fmtVal(gold.exp_per_capita.value,"$ nominal / person")}</div>
+      <table class="gold">${["pop","debt_total","debt_limit","debt_utilization","exp_total","exp_per_capita"].map(id=>{
+        const r=gold[id];
+        const tr=r.source_schedule==="derived"?`derived › ${r.source_variable_code}`
+          :r.source_schedule==="population"?`${r.source_file}`
+          :`${r.source_file} › ${r.source_schedule} › ${r.source_variable_code}`;
+        return `<tr><td>${esc(r.metric_name)}</td><td class="num">${fmtVal(r.value,r.unit)}</td><td><span class="stamp">${esc(tr)}</span></td></tr>`;}).join("")}
+      </table>
+      <p style="font-size:12.5px;color:var(--muted);margin-top:6px">The gold example fails the build if debt
+        utilization drifts more than 0.01 pp, expense per capita more than $0.01, the wrong population source is
+        used, a source trace is missing, or a missing value is silently converted to zero.</p></div>
+    <div class="panel"><h3>Reporting coverage by year</h3>
+      <div class="cov">${Object.entries(cov).map(([y,n])=>`<div class="col"><span class="cap">${n}</span><div class="bar" style="height:${Math.round(n/covMax*70)}px"></div><span class="cap">${y}</span></div>`).join("")}</div>
+      <p style="font-size:12.5px;color:var(--muted)">Valid financial information returns received per year —
+        ${esc(MART.meta.coverage_note_2025)}. Peer outputs always name the municipalities included and their count.</p></div>
+    <div class="panel"><h3>Change control</h3>
+      <table class="rules"><thead><tr><th>Version</th><th>Date</th><th>Change</th></tr></thead><tbody>
+        <tr><td>v1.0</td><td>2026-07-17</td><td>draft approved without changes; signal generation unblocked</td></tr>
+        <tr><td>v1.1</td><td>2026-07-17</td><td>critic fold-back: tie-break steps documented; truncation disclosure covers any status; CX-1 extended to mill rates; approved comparison classes made explicit</td></tr>
+        <tr><td>v1.2</td><td>2026-07-17</td><td>critic re-run fold-back: subject excluded from its own comparator median; included municipalities named; not-flagged verdicts publish full evidence</td></tr>
+      </tbody></table>
+      <p style="font-size:12.5px;color:var(--muted)">Any threshold change requires owner approval and a dated entry
+        in <span class="stamp">governance › pressure_rules.md</span>.</p></div>
+   </div>
+  </div>`;
+})();
+
+/* ---------- management brief ---------- */
+(function renderBrief(){
+  const root=document.getElementById("brief-root");
+  root.innerHTML=`
+    <div style="display:flex;gap:10px;margin-bottom:10px">
+      <span class="chip draft">draft — owner approval required before publishing</span>
+    </div>
+    <h2>Management review brief — reporting year ${SIG.reporting_year}</h2>
+    <div class="eyebrow" style="margin-top:2px">Edmonton Fiscal Pressure Navigator · pre-budget review · rules v1.2</div>
+    <hr class="rule">
+    <section><h3>Purpose and period</h3>
+      <p style="font-size:14px">This brief identifies the financial pressure areas that deserve deeper management
+      review before the coming budget cycle, using Edmonton's 2018–2025 financial information returns and Alberta
+      CSD population estimates. ${esc(SIG.coverage_note)}.</p></section>
+    <section><h3>Top signals for review</h3><ol>
+      ${SIG.signals.map(s=>{
+        const nm=(rowsOf("0098",s.metric_id)[0]||{}).metric_name||s.metric_id;
+        return `<li><b>${esc(nm)} — ${esc(s.status)}.</b> ${esc(s.explanation)}</li>`;}).join("")}
+    </ol>
+    <p style="font-size:13px;color:var(--muted)">${SIG.truncated_signals.length} additional flagged metrics were
+      not shown under the three-signal maximum: ${SIG.truncated_signals.map(t=>`${esc(t.metric_id)} (${esc(t.status)})`).join(", ")}.
+      Full test evidence for each is in the drill-down view.</p></section>
+    <section><h3>Evidence</h3><ul>
+      <li>Every figure traces to workbook › schedule › variable code › year; traces and full test values are in the drill-down view.</li>
+      <li>Edmonton's own 2018–2025 history is the primary benchmark in every test.</li>
+      <li>Calgary and Alberta-city context is supporting evidence only, provisional for 2025 (306 of 332 returns).</li>
+      <li>${SIG.metrics_evaluated} approved metrics were evaluated; ${SIG.not_flagged.length} did not trigger any approved test.</li>
+    </ul></section>
+    <section><h3>Limitations</h3><ul>
+      <li>Dollar amounts are nominal; no inflation adjustment has been approved or applied — nominal growth is not evidence of real cost change.</li>
+      <li>Descriptive trends only: no causal claims, no forecasts, no service-quality evaluation.</li>
+      <li>Signal thresholds are analytical heuristics (<span class="stamp">governance › pressure_rules.md · v1.2</span>), not City policy.</li>
+    </ul></section>
+    <section><h3>Follow-up questions for management</h3><ul>
+      ${SIG.signals.map(s=>{
+        const dom=(rowsOf("0098",s.metric_id)[0]||{}).metric_domain;
+        const nm=(rowsOf("0098",s.metric_id)[0]||{}).metric_name;
+        return `<li><b>${esc(nm)}:</b> ${esc((FOLLOWUP[dom]||[""])[0])}</li>`;}).join("")}
+    </ul></section>
+    <div class="no-policy"><b>This brief does not make policy recommendations.</b> It flags areas for further
+      analysis and management attention. It does not assess Edmonton as financially healthy or unhealthy, and no
+      single figure in it should be read as such an assessment.</div>`;
+})();
+</script>
+</body>
+</html>

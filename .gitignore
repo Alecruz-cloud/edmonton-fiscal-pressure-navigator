@@ -1,0 +1,20 @@
+# Large source archive — exceeds GitHub's 100 MB file limit.
+# StatCan 2021 Census cartographic boundary file (census subdivisions).
+# Download URL and provenance documented in Knowledge/DATA_AND_KNOWLEDGE_ASSESSMENT.md.
+# The derived outputs it produces (dashboard/geo.js, data/curated/alberta_geo.json)
+# ARE committed, so the dashboard and pipeline outputs are reproducible without it.
+data/raw/lcsd000b21a_e.zip
+
+# Python cache / test artifacts
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Local, machine-specific Claude Code permissions (command audit trail — not part of the deliverable)
+.claude/settings.local.json
+
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
