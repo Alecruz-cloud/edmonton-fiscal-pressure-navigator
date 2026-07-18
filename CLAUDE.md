@@ -193,7 +193,12 @@ The dashboard also provides:
   on screen; nulls shown grey with their named state (missing, non-city year), never
   dropped. Geometry from the approved StatCan boundary file via `pipeline/build_geo.py`;
   the embedded per-city values must reproduce the mart's published medians (enforced in
-  `tests/test_geo.py`).
+  `tests/test_geo.py`). **(2026-07-18, owner-approved)** the map renders on a Carto
+  "Positron" base-tile layer (© OpenStreetMap contributors © CARTO) via Leaflet 1.9.4,
+  vendored at `dashboard/vendor/leaflet/` — presentation and orientation only, never a
+  source of any value; attribution on screen; zoom limited to province↔region scale so
+  centroid bubbles are never mistaken for street-level locations; if tiles cannot load
+  (offline), the StatCan outline and bubbles still render.
 - **Methodology view** — the complete rule set (tests, thresholds, classification,
   selection order, change control) rendered on screen from rules v1.2, with the worked
   gold example computed from live mart values and reporting coverage by year.

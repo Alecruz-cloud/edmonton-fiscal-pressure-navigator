@@ -122,12 +122,14 @@
   .map-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:26px}
   .map-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
   .map-controls select{font-family:var(--sans);font-size:14px;padding:6px 8px;border:1px solid var(--line);background:var(--sheet)}
-  svg.abmap{width:100%;height:auto;display:block}
-  .abmap .prov{fill:#EDF1F2;stroke:var(--muted);stroke-width:1}
-  .abmap circle.city{stroke:#fff;stroke-width:1.2;cursor:pointer}
-  .abmap circle.nul{fill:#D8DEE1;stroke:var(--muted);stroke-width:1;stroke-dasharray:2 2}
-  .abmap circle.subject{stroke:var(--ink);stroke-width:2}
-  .abmap text.lbl{font-family:var(--sans);font-size:11px;fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+  #map-holder{height:520px;border:1px solid var(--line);background:#EDF1F2}
+  #map-holder .leaflet-container{width:100%;height:100%;background:#EDF1F2;font-family:var(--sans)}
+  .leaflet-tooltip.city-tip{background:var(--ink);color:#fff;border:none;border-radius:2px;
+    font-family:var(--mono);font-size:11.5px;padding:5px 9px;box-shadow:none;white-space:nowrap}
+  .leaflet-tooltip.city-tip::before{display:none}
+  .city-lbl-ico{background:none;border:none}
+  .maplbl{font:600 11px var(--sans);color:var(--ink);text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;white-space:nowrap}
+  .leaflet-container .leaflet-control-attribution{font-size:10px;background:rgba(255,255,255,.85);font-family:var(--sans)}
   .map-legend{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
   .ramp{width:140px;height:10px;border:1px solid var(--line)}
   .swatch{display:inline-block;width:11px;height:11px;border:1px solid var(--muted);vertical-align:-1px;margin-right:5px}
@@ -164,6 +166,7 @@
     .sig-side{border-left:none;border-top:1px solid var(--line-soft)}
     .dd-grid{grid-template-columns:1fr}
     .map-grid{grid-template-columns:1fr}
+    #map-holder{height:400px}
     nav.tabs{flex-wrap:wrap}
     h1{font-size:30px}
   }
@@ -174,6 +177,7 @@
     body{background:#fff}
   }
 </style>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
 </head>
 <body>
 
@@ -249,7 +253,10 @@
       </div>
       <p style="font-size:12px;color:var(--muted);margin-top:8px">
         Bubble position marks the city's census-subdivision centroid; bubble colour encodes the metric value
-        (equal size — city scale is deliberately not encoded). Edmonton is outlined in ink.</p>
+        (equal size — city scale is deliberately not encoded). Edmonton is outlined in ink.
+        Zoom is limited to province↔region scale so centroid bubbles are never mistaken for street-level
+        locations; the base map is orientation only. If tiles cannot load (offline), the StatCan outline
+        and bubbles still render.</p>
     </div>
     <div>
       <div class="panel" id="map-side"></div>
@@ -258,6 +265,9 @@
         <ul class="notes">
           <li><b>Geometry.</b> <span class="stamp">raw › lcsd000b21a_e.zip › StatCan 2021 CSD cartographic boundaries</span>
               — owner-approved external source (2026-07-17), reprojected EPSG:3347 → 4326, outline simplified 1,500 m.</li>
+          <li><b>Base map.</b> Carto “Positron” tiles © OpenStreetMap contributors © CARTO — presentation only,
+              never a source of any value; loaded at runtime (requires internet). Rendered with Leaflet 1.9.4,
+              vendored at <span class="stamp">dashboard › vendor › leaflet</span> (owner-approved 2026-07-18).</li>
           <li><b>City set &amp; matching.</b> <span class="stamp">governance › municipality_crosswalk.csv · crosswalk_signoff.md</span>
               — 19 cities, geo/context scope only; Lloydminster located by its Alberta part.</li>
           <li><b>Values.</b> <span class="stamp">pipeline › build_geo.py › financial_long.csv</span> — same guards as the
@@ -295,6 +305,7 @@
 
 <script src="data.js"></script>
 <script src="geo.js"></script>
+<script src="vendor/leaflet/leaflet.js"></script>
 <script>
 const MART = window.MART, SIG = window.SIGNALS, GEO = window.GEO;
 const YEARS = [2018,2019,2020,2021,2022,2023,2024,2025];
@@ -339,6 +350,12 @@ function selectTab(btn){
     t.setAttribute('aria-selected', on);
     document.getElementById(t.getAttribute('aria-controls')).classList.toggle('active', on);
   });
+  // Leaflet sizes itself from its container: refresh when the map tab becomes visible,
+  // and re-fit to Alberta the first time (the map may have initialized while hidden).
+  if(btn.id==="tab-map" && window.LMAP) setTimeout(()=>{
+    window.LMAP.invalidateSize({animate:false});
+    if(!window._mapFit){ window._mapFit=1; window.LMAP.fitBounds(window.ABB,{padding:[12,12],animate:false}); }
+  },60);
 }
 tabs.forEach(t=>t.addEventListener('click',()=>selectTab(t)));
 // deep-link support: #view-drill / #view-brief select the tab on load (also used for screenshots)
@@ -649,19 +666,29 @@ const EVALUATED = Object.keys(ALL_RESULTS).map(mid=>{
   markMini("debt_utilization");
 })();
 
-/* ---------- Alberta context map ---------- */
-function mapProjection(){
-  const pts=GEO.outline.flat();
-  let lat0=90,lat1=-90,lon0=180,lon1=-180;
-  pts.forEach(p=>{ if(p[1]<lat0)lat0=p[1]; if(p[1]>lat1)lat1=p[1]; if(p[0]<lon0)lon0=p[0]; if(p[0]>lon1)lon1=p[0]; });
-  const k=Math.cos((lat0+lat1)/2*Math.PI/180), W=430, pad=16;
-  const s=(W-2*pad)/((lon1-lon0)*k);
-  const H=Math.round((lat1-lat0)*s+2*pad);
-  return {W,H,x:lon=>pad+(lon-lon0)*k*s,y:lat=>pad+(lat1-lat)*s};
-}
+/* ---------- Alberta context map (Leaflet + Carto Positron; base map is presentation only) ---------- */
 function rampColor(t){
   const a=[221,232,239], b=[14,118,168];
   return `rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(",")})`;
+}
+let LMAP=null, LBUBBLES=null;
+window._mapFit=0;
+function ensureLeafletMap(){
+  if(LMAP || !window.L || !GEO) return;
+  const rings=GEO.outline.map(ring=>ring.map(p=>[p[1],p[0]]));   // [lon,lat] -> [lat,lng]
+  window.ABB=L.latLngBounds(rings.flat());
+  LMAP=L.map("map-holder",{minZoom:5,maxZoom:9,zoomSnap:0.25,
+    maxBounds:window.ABB.pad(0.45),maxBoundsViscosity:0.8});
+  window.LMAP=LMAP;
+  LMAP.attributionControl.setPrefix(false);
+  // Base map: orientation only — never a source of any value. Requires internet; if the
+  // tiles fail, the StatCan outline polygon below still renders on the plain background.
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:9,
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a> · base map: presentation only'
+  }).addTo(LMAP);
+  L.polygon(rings,{color:"#51626C",weight:1.4,dashArray:"5 4",fill:false,interactive:false}).addTo(LMAP);
+  LBUBBLES=L.layerGroup().addTo(LMAP);
+  LMAP.fitBounds(window.ABB,{padding:[12,12],animate:false});
 }
 function renderMap(){
   const mid=document.getElementById("map-metric").value;
@@ -670,25 +697,32 @@ function renderMap(){
   const med=GEO.medians[mid][year];
   const nums=GEO.cities.map(c=>vals[c.code]).filter(v=>v!==null&&v!==undefined);
   const holder=document.getElementById("map-holder");
-  if(!nums.length){ holder.innerHTML='<p style="color:var(--muted)">No reported values for this metric-year.</p>'; return; }
+  if(!window.L){ holder.innerHTML='<p style="padding:14px">vendor/leaflet/leaflet.js not found — restore dashboard/vendor to render the map.</p>'; return; }
+  ensureLeafletMap();
+  holder.setAttribute("aria-label",`Alberta reporting cities — ${meta.name}, ${year}`);
+  LBUBBLES.clearLayers();
+  if(!nums.length){ document.getElementById("map-legend").innerHTML='<span style="color:var(--muted)">No reported values for this metric-year.</span>'; return; }
   const lo=Math.min(...nums), hi=Math.max(...nums), span=(hi-lo)||1;
-  const P=mapProjection();
-  const path=GEO.outline.map(ring=>"M"+ring.map(p=>P.x(p[0]).toFixed(1)+","+P.y(p[1]).toFixed(1)).join("L")+"Z").join("");
   const order=[...GEO.cities].sort((a,b)=>(a.code==="0098")-(b.code==="0098"));
-  let svg=`<path class="prov" d="${path}"/>`;
   order.forEach(c=>{
-    const v=vals[c.code], subject=c.code==="0098";
-    const cx=P.x(c.lon).toFixed(1), cy=P.y(c.lat).toFixed(1), r=subject?9:6.5;
-    if(v===null||v===undefined){
-      svg+=`<circle class="city nul${subject?" subject":""}" data-label="${esc(c.name)} ${year}: ${esc(reasons[c.code]||"no value")}" cx="${cx}" cy="${cy}" r="${r}"/>`;
-    }else{
-      svg+=`<circle class="city${subject?" subject":""}" data-label="${esc(c.name)} ${year}: ${fmtVal(v,meta.unit)}" cx="${cx}" cy="${cy}" r="${r}" fill="${rampColor((v-lo)/span)}"/>`;
+    const v=vals[c.code], subject=c.code==="0098", r0=subject?10:7;
+    const style=(v===null||v===undefined)
+      ? {radius:r0,color:"#51626C",weight:1.2,dashArray:"2 2",fillColor:"#D8DEE1",fillOpacity:.9}
+      : {radius:r0,color:subject?"#17252C":"#FFFFFF",weight:subject?2.4:1.4,fillColor:rampColor((v-lo)/span),fillOpacity:.92};
+    const label=(v===null||v===undefined)
+      ? `${c.name} ${year}: ${reasons[c.code]||"no value"}`
+      : `${c.name} ${year}: ${fmtVal(v,meta.unit)}`;
+    const m=L.circleMarker([c.lat,c.lon],style)
+      .bindTooltip(label,{sticky:true,className:"city-tip",direction:"top",offset:[0,-8]})
+      .on("mouseover",function(){this.setRadius(r0+2)})
+      .on("mouseout",function(){this.setRadius(r0)});
+    m.addTo(LBUBBLES);
+    if(c.code==="0098"||c.code==="0046"){
+      L.marker([c.lat,c.lon],{interactive:false,keyboard:false,
+        icon:L.divIcon({className:"city-lbl-ico",html:`<span class="maplbl">${esc(c.name)}</span>`,iconSize:[0,0],iconAnchor:[-11,7]})
+      }).addTo(LBUBBLES);
     }
   });
-  const ed=GEO.cities.find(c=>c.code==="0098"), cal=GEO.cities.find(c=>c.code==="0046");
-  svg+=`<text class="lbl" x="${(P.x(ed.lon)+12).toFixed(1)}" y="${(P.y(ed.lat)+4).toFixed(1)}">Edmonton</text>`;
-  svg+=`<text class="lbl" x="${(P.x(cal.lon)+12).toFixed(1)}" y="${(P.y(cal.lat)+4).toFixed(1)}">Calgary</text>`;
-  holder.innerHTML=`<svg class="abmap" viewBox="0 0 ${P.W} ${P.H}" role="img" aria-label="Alberta reporting cities — ${esc(meta.name)}, ${year}">${svg}</svg>`;
   const stops=Array.from({length:24},(_,i)=>rampColor(i/23));
   document.getElementById("map-legend").innerHTML=
     `<span>${fmtVal(lo,meta.unit)}</span>
@@ -715,12 +749,6 @@ function renderMap(){
     <p style="font-size:12px;color:var(--muted);margin-top:8px">Sorted by value for scanability — a descriptive
       display with coverage disclosed, not a performance ranking. Municipal scale, responsibilities and service
       structures differ materially across these cities.</p>`;
-  const tip=document.getElementById("tooltip");
-  document.querySelectorAll(".abmap .city").forEach(el=>{
-    el.addEventListener("mousemove",e=>{ tip.style.display="block"; tip.textContent=el.dataset.label;
-      tip.style.left=(e.clientX+14)+"px"; tip.style.top=(e.clientY-30)+"px"; });
-    el.addEventListener("mouseleave",()=>tip.style.display="none");
-  });
 }
 (function initMap(){
   if(!GEO){ document.getElementById("map-holder").innerHTML="<p>geo.js not found — run pipeline/build_geo.py</p>"; return; }
