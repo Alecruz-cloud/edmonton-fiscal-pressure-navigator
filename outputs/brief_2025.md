@@ -1,6 +1,8 @@
 # Edmonton Fiscal Pressure Review Brief — 2025
 
-**DRAFT — requires owner approval before publishing**
+**APPROVED for publication — project owner (Alejandro Cruz), 2026-07-18.** Drafted by the
+municipal-finance-analyst capability from validated outputs only; approval recorded per the
+governance rule that publishing a brief requires human sign-off.
 
 ## 1. Purpose and period
 
