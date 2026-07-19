@@ -90,12 +90,16 @@ The gold example fails if debt utilization differs by more than `0.01` percentag
 
 ### Out of scope
 
-- forecasting;
+- forecasting — **(2026-07-18)** kept out after owner review: eight annual observations
+  per metric cannot support a defensible predictive model. Any future proposal must bring
+  a longer approved return history, an owner-approved method with mandatory uncertainty
+  reporting, and its own review gate;
 - causal claims;
 - tax, service-cut, layoff, borrowing, or capital-project recommendations;
 - one composite fiscal-health score;
 - hidden municipality rankings;
-- real-dollar claims without an approved inflation source;
+- real-dollar claims beyond the approved constant-2025 CPI display context (see
+  Knowledge and data conventions);
 - program-level service-quality evaluation;
 - replacing professional financial review or Council accountability.
 
@@ -109,6 +113,10 @@ Approved Knowledge Stock:
   (`data/raw/lcsd000b21a_e.zip`, 148.8 MB, downloaded 2026-07-17; owner-approved
   2026-07-17) — used only to derive the Alberta outline and city centroids for the
   context map, never as a source of financial or population values;
+- Statistics Canada table 18-10-0005-01, annual Consumer Price Index, All-items,
+  Alberta, 2002=100 (`data/raw/18100005-eng.zip`, 1.2 MB, downloaded 2026-07-18;
+  owner-approved 2026-07-18) — used only to derive the Edmonton constant-2025$
+  display context (`*_real2025` mart rows), never as a test or signal input;
 - `Knowledge/DATA_AND_KNOWLEDGE_ASSESSMENT.md`;
 - approved metric dictionary, municipality crosswalk, and governance notes created during the build.
 
@@ -125,6 +133,10 @@ Rules:
   `governance/crosswalk_signoff.md`) — population joins remain approved for Edmonton and
   Calgary alone, so per-capita peer medians stay structurally unavailable;
 - missing and zero remain separate states;
+- **(2026-07-18)** dollar basis: tests and signals evaluate **nominal** values under
+  rules v1.2; the approved CPI context ships as Edmonton-only `*_real2025` mart rows
+  labelled `constant 2025`, rendered solely through the drill-down chart toggle, never
+  mixed with nominal peers on one axis, and never fed to a test;
 - every peer output shows the municipalities included and reporting coverage;
 - 2025 peer comparisons are labelled provisional when reporting is incomplete;
 - files in `Knowledge/course_information/` guide project requirements but are not evidence about Edmonton;

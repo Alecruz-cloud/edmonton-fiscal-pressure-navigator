@@ -10,7 +10,9 @@
 2. Municipality key is the financial `CODE` read **as text** (leading zeros preserved): Edmonton `0098`, Calgary `0046`.
 3. Per-capita denominators use **only** the population-estimates workbook (CSD codes `4811061` Edmonton, `4806016` Calgary). The population schedule inside the financial workbooks is never used — it is absent 2020–2022 and stale (1,010,899 repeated) for 2023–2025.
 4. Blank cells → `missing`; explicit 0 → `reported_zero`. The two states are never merged.
-5. All dollar amounts are **nominal**; no inflation adjustment is approved.
+5. Dollar amounts are **nominal**, with one owner-approved exception (2026-07-18): the
+   Edmonton-only `*_real2025` display variants defined in §Real-dollar display variants,
+   labelled `constant 2025`. Tests and signals always evaluate the nominal series.
 6. Every curated value carries `source_file`, `source_sheet`, `variable_code`, `year`.
 
 ## A — Growth and operating scale
@@ -69,7 +71,22 @@
 - Peer (Calgary / Alberta cities) values for **2025 are provisional**: 306 of 332 returns received.
 - Statistical schedule (`ST(1)-Stat`) changes more over time than financial schedules; only code `05500` is approved from it.
 
-## Known-answer anchors (owner-approved 2026-07-17, G3)
+## Real-dollar display variants *(added 2026-07-18, owner-approved)*
+
+Every Edmonton (`0098`) dollar metric above carries a sibling `<metric_id>_real2025`:
+
+- **Formula:** `nominal × CPI_2025 / CPI_year`, computed from the published nominal value.
+- **CPI source:** StatCan table 18-10-0005-01, Consumer Price Index, annual average,
+  **All-items, Alberta** (2002=100), vector `v41694625` — raw file
+  `data/raw/18100005-eng.zip` (downloaded 2026-07-18). 2018 = 140.6 … 2025 = 172.2.
+- **Unit label:** `$ constant 2025` (never `nominal`); `comparability_status =
+  display_only_context`.
+- **Scope:** Edmonton only; rendered solely through the drill-down chart toggle; never
+  mixed with nominal peer series on one axis; **never a test, signal, or comparison
+  input** — rules v1.2 thresholds are calibrated on nominal series and are unchanged.
+- Mill rates, shares, utilizations, counts and FTE have no real variant (not dollars).
+
+## Known-answer anchors (owner-approved 2026-07-17, G3; CPI anchors added 2026-07-18)
 
 | Check | Year | Expected | Tolerance |
 |---|---|---|---|
@@ -77,3 +94,5 @@
 | Gold: expense per capita | 2025 | $3,265.7307 | ±$0.01 |
 | Extra 1: debt utilization | 2022 | 64.11% (3,940,329,000 / 6,146,130,000) | ±0.01 pp |
 | Extra 2: FTE per 1,000 | 2025 | 9.6237 (11,917 / 1,238.295k) | ±0.001 |
+| CPI identity: expense per capita, constant 2025 | 2025 | equals nominal ($3,265.7307) | exact |
+| CPI deflation: expense per capita, constant 2025 | 2018 | $3,699.4255 (= 3,020.5530 × 172.2/140.6) | ±$0.01 |

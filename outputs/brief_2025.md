@@ -4,7 +4,7 @@
 
 ## 1. Purpose and period
 
-This brief supports pre-budget review prioritization for the City of Edmonton. It flags the financial pressure areas that most warrant deeper management analysis; it does not assess overall financial health. Evidence covers reporting years 2018–2025, with Edmonton's own history as the primary benchmark. **2025 coverage notice:** 306 of 332 Alberta financial information returns received — all 2025 peer comparisons are provisional. All dollar figures are nominal; no inflation adjustment is applied. Signals were generated under pressure rules **v1.2** (approved 2026-07-17), `governance/pressure_rules.md`; 22 metrics were evaluated.
+This brief supports pre-budget review prioritization for the City of Edmonton. It flags the financial pressure areas that most warrant deeper management analysis; it does not assess overall financial health. Evidence covers reporting years 2018–2025, with Edmonton's own history as the primary benchmark. **2025 coverage notice:** 306 of 332 Alberta financial information returns received — all 2025 peer comparisons are provisional. Signals evaluate nominal dollar figures; an owner-approved constant-2025$ CPI display context (StatCan 18-10-0005-01, All-items Alberta; approved 2026-07-18) is available in the drill-down and never feeds a test. Signals were generated under pressure rules **v1.2** (approved 2026-07-17), `governance/pressure_rules.md`; 22 metrics were evaluated.
 
 ## 2. Top signals (three surfaced; truncation disclosed below)
 
@@ -31,7 +31,8 @@ Edmonton's own 2018–2025 history is the primary benchmark. Calgary (code `0046
 
 ## 4. Limitations
 
-- All dollar amounts are **nominal**; no approved inflation adjustment exists, so real-dollar interpretations are not supported.
+- Signal tests evaluate **nominal** dollars (rules v1.2). Real-dollar interpretation is supported only through the owner-approved constant-2025$ CPI display context (StatCan 18-10-0005-01, All-items Alberta, base 2025; approved 2026-07-18) shown in the drill-down — for example, Edmonton's 2018 expense per capita of $3,020.55 nominal is $3,699.43 in 2025 dollars, so the nominal 8.1% rise over 2018–2025 is a decline in real terms. Nominal test triggers are not evidence of real cost growth.
+- **No forecasting.** With eight annual observations per metric, a predictive model would be statistically indefensible. A governed path exists — a longer approved return history, an owner-approved method with mandatory uncertainty reporting, and its own review gate — and remains future work outside this brief.
 - 2025 peer comparisons are **provisional** (306 of 332 returns received). Alberta reporting-city medians **exclude Edmonton** (the subject is never part of its own comparator, rules v1.2) and name the included municipalities (2025: n=18).
 - Findings are **descriptive**: no causal claims, no forecasts, no assessment of financial health, and no aggregation of signals into a score.
 - Thresholds, tie-break rules, and comparator composition are documented analytical heuristics in `governance/pressure_rules.md` (v1.2, approved 2026-07-17), not City policy.

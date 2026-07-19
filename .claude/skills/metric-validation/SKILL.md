@@ -23,8 +23,12 @@ means the number must not be used.
 4. **Missing is never zero.** Blank source cells are `missing`; explicit zeros are
    `reported_zero`. Never substitute, average over, or silently drop either state.
    Derived metrics with a missing input are `not_applicable`, not 0.
-5. **Nominal labels.** Every dollar amount is labelled nominal. Never describe nominal
-   growth as real growth, cost efficiency, or affordability change.
+5. **Dollar-basis labels.** Every dollar amount is labelled nominal, with one
+   owner-approved exception (2026-07-18): Edmonton `*_real2025` display-context rows,
+   labelled `constant 2025` and carrying their StatCan 18-10-0005-01 CPI trace
+   (All-items Alberta, base 2025). Never describe nominal growth as real growth;
+   real-dollar statements must cite the constant-2025 series, and signals always
+   evaluate nominal values (rules v1.2).
 6. **Source trace.** Every value you present carries workbook › schedule › variable code ›
    year (or `derived › formula` with traced inputs). A number without its trace is not
    reportable.

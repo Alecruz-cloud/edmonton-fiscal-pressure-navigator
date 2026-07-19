@@ -93,6 +93,9 @@
   .chart-sub{font-size:12px;color:var(--muted);margin-bottom:8px}
   .legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin:6px 0 2px}
   .legend .key{display:inline-block;width:18px;height:0;border-top:2.5px solid;margin-right:5px;vertical-align:middle}
+  .real-toggle{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink);
+    margin:2px 0 6px;flex-wrap:wrap;cursor:pointer}
+  .real-toggle input{accent-color:#12805A}
   select#metric-pick{font-family:var(--sans);font-size:14px;padding:6px 8px;border:1px solid var(--line);
     background:var(--sheet);max-width:100%}
   #tooltip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;font-family:var(--mono);
@@ -358,9 +361,12 @@ function selectTab(btn){
   },60);
 }
 tabs.forEach(t=>t.addEventListener('click',()=>selectTab(t)));
-// deep-link support: #view-drill / #view-brief select the tab on load (also used for screenshots)
+// deep-link support: #view-drill / #view-brief select the tab on load (also used for
+// screenshots); #view-drill:metric_id additionally opens that metric's evidence (the
+// metric part is applied after the picker is populated, below initDrill)
 if(location.hash){
-  const target=document.querySelector(`nav.tabs button[aria-controls="${location.hash.slice(1)}"]`);
+  const view=location.hash.slice(1).split(":")[0];
+  const target=document.querySelector(`nav.tabs button[aria-controls="${view}"]`);
   if(target) selectTab(target);
 }
 
@@ -451,14 +457,18 @@ const FOLLOWUP = {
      "Does the function's share of total expense show the same pattern as its per-capita value?"]
 };
 
-function drawChart(mid, container){
+function drawChart(mid, container, showReal){
   const unit = (rowsOf("0098",mid)[0]||{}).unit || "";
   const approved = CONTEXT_OK.has(mid);   // rules v1.2: peer context only for approved classes
   const ed = seriesOf("0098",mid);
-  const cal = approved ? seriesOf("0046",mid) : {};
-  const med = approved ? seriesOf("AB_CITIES_MEDIAN",mid) : {};
+  // Constant-2025$ mode (owner-approved 2026-07-18): Edmonton nominal vs real only —
+  // peer series are hidden because mixing dollar bases on one axis would mislead.
+  const real = showReal ? seriesOf("0098", mid + "_real2025") : {};
+  const cal = (approved && !showReal) ? seriesOf("0046",mid) : {};
+  const med = (approved && !showReal) ? seriesOf("AB_CITIES_MEDIAN",mid) : {};
   const seriesList = [
-    {name:"Edmonton", data:ed, color:"#0E76A8", dash:""},
+    {name:"Edmonton (nominal)", data:ed, color:"#0E76A8", dash:""},
+    Object.keys(real).length ? {name:"Edmonton (constant 2025 $, CPI context)", data:real, color:"#12805A", dash:"6 3"} : null,
     Object.keys(cal).length ? {name:"Calgary (context)", data:cal, color:"#51626C", dash:"6 4"} : null,
     Object.keys(med).length ? {name:"AB cities median (context)", data:med, color:"#A36A00", dash:"2 4"} : null,
   ].filter(Boolean);
@@ -525,13 +535,17 @@ function renderDrill(mid){
     <div>
       <div class="panel">
         <h3>${esc(r25.metric_name)} ${statusChip(metricStatus)}${truncStatus?' <span class="chip context">not among top 3 — see truncation notice</span>':''}</h3>
-        <p style="font-size:13.5px">Unit: <b>${esc(r25.unit)}</b>${r25.unit.startsWith("$")?" — amounts are nominal; no inflation adjustment is applied.":""}</p>
+        <p style="font-size:13.5px">Unit: <b>${esc(r25.unit)}</b>${r25.unit.startsWith("$")?" — tests evaluate nominal amounts; a constant-2025$ CPI context is available on the chart toggle.":""}</p>
         ${r25.formula?`<div class="formula">${esc(r25.metric_id)} = ${esc(r25.formula)}</div>`:""}
         <span class="stamp">${esc(trace)}</span>
       </div>
       <div class="chart-box">
         <div class="chart-title">Edmonton trend, ${yearsAvail[0]}–${yearsAvail.at(-1)}</div>
-        <div class="chart-sub">Context series are supporting evidence only · 2025 peer values provisional · hover any point</div>
+        <div class="chart-sub" id="chart-sub">Context series are supporting evidence only · 2025 peer values provisional · hover any point</div>
+        ${REC.some(r=>r.metric_id===mid+"_real2025"&&r.value!==null)?`
+        <label class="real-toggle"><input type="checkbox" id="real-toggle">
+          Constant 2025 $ — CPI display context
+          <span class="stamp">StatCan 18-10-0005-01 · All-items Alberta · base 2025 · owner-approved 2026-07-18</span></label>`:""}
         <div id="chart-holder"></div>
       </div>
       ${sig?`<div class="panel"><h3>Approved tests for this metric <span class="chip verified">rules v1.2</span></h3>
@@ -563,7 +577,9 @@ function renderDrill(mid){
       </div>
       <div class="panel"><h3>Data quality &amp; comparability</h3>
         <ul class="notes">
-          <li><b>Nominal dollars.</b> No inflation adjustment is approved or applied.</li>
+          <li><b>Dollar basis.</b> Tests and signals evaluate nominal dollars (rules v1.2). An owner-approved
+              (2026-07-18) constant-2025$ display context — StatCan 18-10-0005-01, All-items Alberta CPI —
+              is available on the trend chart; it never feeds a test.</li>
           <li><b>Population source rule.</b> Per-capita values use only the Alberta CSD estimates (Edmonton 4811061, Calgary 4806016); the financial workbooks' stale population field is never used.</li>
           <li><b>Missing ≠ zero.</b> Blank source cells stay <span class="stamp">missing</span>; they are never converted to 0.</li>
           <li><b>Code stability.</b> ${esc(r25.source_schedule==="derived"?"All input codes verified present 2018–2025.":"Variable code verified present in row 3 for all years 2018–2025.")}</li>
@@ -580,12 +596,19 @@ function renderDrill(mid){
     selectTab(document.getElementById("tab-map"));
     window.scrollTo({top:0});
   }));
+  const realTgl=document.getElementById("real-toggle");
+  if(realTgl) realTgl.addEventListener("change",()=>{
+    drawChart(mid, document.getElementById("chart-holder"), realTgl.checked);
+    document.getElementById("chart-sub").textContent = realTgl.checked
+      ? "Edmonton nominal vs constant-2025$ (peer series hidden — different dollar bases never share an axis) · display context only, never a test input"
+      : "Context series are supporting evidence only · 2025 peer values provisional · hover any point";
+  });
   drawChart(mid, document.getElementById("chart-holder"));
 }
 
 (function initDrill(){
   const pick=document.getElementById("metric-pick");
-  const ids=[...new Set(REC.filter(r=>r.municipality_code==="0098").map(r=>r.metric_id))];
+  const ids=[...new Set(REC.filter(r=>r.municipality_code==="0098" && !r.metric_id.endsWith("_real2025")).map(r=>r.metric_id))];  // real rows ride the toggle, never the picker
   const flagged=new Set([...SIG.signals.map(s=>s.metric_id), ...SIG.truncated_signals.map(t=>t.metric_id)]);
   ids.sort((a,b)=>(flagged.has(b)-flagged.has(a))||a.localeCompare(b));
   pick.innerHTML=ids.map(id=>{
@@ -612,6 +635,11 @@ function openDrill(mid, where){
   else window.scrollTo({top:0});
 }
 document.getElementById("metric-pick").addEventListener("change",e=>markMini(e.target.value));
+// metric deep-link (#view-drill:metric_id) — applied once the picker exists
+if(location.hash.includes(":")){
+  const metric=location.hash.split(":")[1];
+  if([...document.querySelectorAll("#metric-pick option")].some(o=>o.value===metric)) openDrill(metric,"top");
+}
 
 const EVALUATED = Object.keys(ALL_RESULTS).map(mid=>{
   const s=ALL_RESULTS[mid];
@@ -830,6 +858,18 @@ function renderMap(){
       </tbody></table>
       <p style="font-size:12.5px;color:var(--muted)">Any threshold change requires owner approval and a dated entry
         in <span class="stamp">governance › pressure_rules.md</span>.</p></div>
+    <div class="panel"><h3>Dollar basis &amp; forecasting boundary <span class="chip context">owner-approved 2026-07-18</span></h3>
+      <ul class="notes">
+        <li><b>Signals evaluate nominal dollars</b> (rules v1.2 thresholds are calibrated on nominal series).</li>
+        <li><b>Constant-2025$ display context.</b> Edmonton dollar metrics carry a CPI-deflated sibling
+          (<span class="stamp">value × CPI_2025 / CPI_year</span>) from
+          <span class="stamp">raw › 18100005-eng.zip › StatCan 18-10-0005-01 · All-items Alberta (2002=100)</span>,
+          shown only via the drill-down chart toggle. It never feeds a test, a signal, or a peer comparison —
+          bases are never mixed on one axis.</li>
+        <li><b>No forecasting.</b> Eight annual observations per metric cannot support a defensible predictive
+          model. Any future forecasting proposal requires: a longer approved return history, an owner-approved
+          method with mandatory uncertainty reporting, and its own review gate — none of which this release claims.</li>
+      </ul></div>
    </div>
   </div>`;
 })();
@@ -863,7 +903,12 @@ function renderMap(){
       <li>${SIG.metrics_evaluated} approved metrics were evaluated; ${SIG.not_flagged.length} did not trigger any approved test.</li>
     </ul></section>
     <section><h3>Limitations</h3><ul>
-      <li>Dollar amounts are nominal; no inflation adjustment has been approved or applied — nominal growth is not evidence of real cost change.</li>
+      <li>Signals evaluate nominal dollars (rules v1.2). An owner-approved constant-2025$ CPI display context
+          (StatCan 18-10-0005-01, All-items Alberta; approved 2026-07-18) is available in the drill-down —
+          nominal growth alone is still not evidence of real cost change.</li>
+      <li>No forecasting: with eight annual observations per metric, a predictive model would be statistically
+          indefensible. A governed path exists — longer return history, an owner-approved method with mandatory
+          uncertainty reporting, and its own review gate — and remains future work, not part of this brief.</li>
       <li>Descriptive trends only: no causal claims, no forecasts, no service-quality evaluation.</li>
       <li>Signal thresholds are analytical heuristics (<span class="stamp">governance › pressure_rules.md · v1.2</span>), not City policy.</li>
     </ul></section>

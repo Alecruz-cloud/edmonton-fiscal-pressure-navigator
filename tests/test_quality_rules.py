@@ -104,8 +104,17 @@ def test_every_derived_row_shows_formula(mart):
 
 
 def test_dollar_metrics_labelled_nominal(mart):
+    """Every dollar unit is nominal, except the owner-approved (2026-07-18) Edmonton
+    *_real2025 display context, which must be labelled constant 2025 instead."""
     for r in mart["records"]:
-        if r["unit"].startswith("$"):
+        if not r["unit"].startswith("$"):
+            continue
+        if r["metric_id"].endswith("_real2025"):
+            assert "constant 2025" in r["unit"], \
+                f"{r['metric_id']} real row not labelled constant 2025"
+            assert r["municipality_code"] == "0098", \
+                f"{r['metric_id']} constant-2025 approval is Edmonton-only"
+        else:
             assert "nominal" in r["unit"], f"{r['metric_id']} dollar unit not labelled nominal"
 
 

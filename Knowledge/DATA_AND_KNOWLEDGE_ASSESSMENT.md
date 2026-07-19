@@ -64,6 +64,18 @@ codes is governed by the extended crosswalk (`governance/municipality_crosswalk.
 sign-off in `governance/crosswalk_signoff.md`) with geo-only scope for the 17 non-focus
 cities.
 
+### Source D: StatCan Consumer Price Index, All-items, Alberta *(added 2026-07-18, owner-approved)*
+
+`data/raw/18100005-eng.zip` (1.2 MB, Statistics Canada table 18-10-0005-01, downloaded
+2026-07-18). Annual-average CPI, **All-items, Alberta**, 2002=100, vector `v41694625`;
+project years verified clean on download day: 2018 = 140.6, 2019 = 143.1, 2020 = 144.7,
+2021 = 149.3, 2022 = 158.9, 2023 = 164.1, 2024 = 168.9, 2025 = 172.2 (pinned in
+`tests/test_cpi.py`). Approved for one purpose only: the Edmonton constant-2025$
+**display context** (`*_real2025` mart rows, `pipeline/build_mart.py::extract_cpi`).
+It never feeds a test, signal, threshold, or peer comparison — rules v1.2 evaluate
+nominal series, unchanged. This executes the §6.4 decision that an inflation index be
+"an optional future Knowledge Stock addition rather than silently adjusting values."
+
 ## 3. Recommended analytical focus
 
 ### Primary municipality
@@ -218,6 +230,12 @@ Financial amounts are nominal. Growth in revenue or expense cannot automatically
 - prioritize ratios, shares, utilization rates, and per-capita measures;
 - do not claim that nominal cost growth represents efficiency deterioration;
 - treat an inflation index as an optional future Knowledge Stock addition rather than silently adjusting values.
+
+**Update (2026-07-18, owner-approved):** the optional addition was exercised as
+**Source D** — a constant-2025$ display context on Edmonton dollar metrics, shown only
+through the drill-down chart toggle with its full CPI trace. Values are never silently
+adjusted: nominal remains the tested basis (rules v1.2), the real series is labelled
+`constant 2025`, and the two bases never share an axis with peer values.
 
 ### 6.5 Zero versus missing
 

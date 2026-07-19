@@ -148,3 +148,21 @@ real rounding-order bug on first run (median-of-rounded vs round-of-median). The
 requested Edmonton neighbourhood map was rejected on data-grain grounds and recorded in
 the run log; the critic was **not** re-run for this display-only iteration — flagged as
 open follow-up rather than claimed as verified.
+
+## Addendum — CPI display-context iteration (2026-07-18)
+
+| Reading | Before | After CPI iteration |
+|---|---|---|
+| Automated tests | 51 pass / 0 fail | **57 pass / 0 fail** (6 new CPI tests) |
+| Validator anchors | 8 | **10** (2025 identity; 2018 deflation known-answer) |
+| Rules version | 1.2 | **1.2 unchanged** — signals still evaluate nominal values |
+| Signals output | 3 High + 10 truncated + 9 not flagged | **byte-identical verdicts** — the engine never reads `*_real2025` rows |
+
+New evidence anchors: independent re-extraction of the pinned Alberta CPI values from
+the raw StatCan zip (140.6 → 172.2); the base-year identity (2025 real ≡ 2025 nominal,
+exact); and the deflation known-answer ($3,020.55 nominal 2018 ≡ $3,699.43 constant
+2025, ±$0.01). The requested ML forecast was **refused** (eight observations per metric)
+and the governed path recorded in the spec. One narrative error was caught by the
+process itself: a from-memory "$3,019.86" failed verification against the mart
+($3,020.55) and was corrected before publication. The critic was not re-run for this
+display-only iteration — open follow-up, same as the map iteration.

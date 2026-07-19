@@ -17,8 +17,10 @@ Load-bearing rules (CLAUDE.md / governance/metric_dictionary.md):
 from __future__ import annotations
 
 import csv
+import io
 import json
 import statistics
+import zipfile
 from pathlib import Path
 
 import openpyxl
@@ -27,6 +29,11 @@ ROOT = Path(__file__).resolve().parent.parent
 RAW = ROOT / "data" / "raw"
 CURATED = ROOT / "data" / "curated"
 POP_FILE = "population-estimates-ab-census-subdivision-municipal-2016-to-current.xlsx"
+# StatCan table 18-10-0005-01 (annual CPI, All-items, Alberta, 2002=100), downloaded
+# 2026-07-18 — owner-approved the same day for DISPLAY-ONLY real-dollar context
+# (base 2025). The signal engine evaluates nominal values under rules v1.2.
+CPI_FILE = "18100005-eng.zip"
+CPI_BASE_YEAR = 2025
 
 YEARS = list(range(2018, 2026))
 
@@ -214,8 +221,35 @@ def extract_population():
     return records
 
 
-def build_mart(fin, pop):
-    """Narrow decision-ready mart: Edmonton + Calgary + AB-cities median."""
+def extract_cpi():
+    """Alberta All-items annual CPI (2002=100) -> {year: value}, read from the raw zip.
+
+    StatCan table 18-10-0005-01, owner-approved 2026-07-18 for display-only
+    real-dollar context. Hard-fails unless exactly one clean value exists for
+    every project year — a status flag or unit change must stop the build.
+    """
+    cpi = {}
+    with zipfile.ZipFile(RAW / CPI_FILE) as z, z.open("18100005.csv") as fh:
+        for r in csv.DictReader(io.TextIOWrapper(fh, encoding="utf-8-sig")):
+            if (r["GEO"] == "Alberta" and r["Products and product groups"] == "All-items"
+                    and r["REF_DATE"].isdigit() and int(r["REF_DATE"]) in set(YEARS)):
+                year = int(r["REF_DATE"])
+                if r["UOM"] != "2002=100":
+                    raise RuntimeError(f"CPI {year}: unexpected unit of measure {r['UOM']!r}")
+                if r["STATUS"].strip():
+                    raise RuntimeError(f"CPI {year}: unexpected status flag {r['STATUS']!r}")
+                if year in cpi:
+                    raise RuntimeError(f"CPI {year}: duplicate source row")
+                cpi[year] = float(r["VALUE"])
+    missing = [y for y in YEARS if y not in cpi]
+    if missing:
+        raise RuntimeError(f"{CPI_FILE}: CPI years missing for Alberta All-items: {missing}")
+    return cpi
+
+
+def build_mart(fin, pop, cpi):
+    """Narrow decision-ready mart: Edmonton + Calgary + AB-cities median, plus
+    Edmonton-only constant-2025$ display context (owner-approved 2026-07-18)."""
     fin_ix = {(r["financial_year"], r["municipality_code"], r["schedule"], r["variable_code"]): r
               for r in fin}
     pop_ix = {(r["year"], r["census_subdivision_code"]): r for r in pop}
@@ -223,7 +257,7 @@ def build_mart(fin, pop):
     mart = []
 
     def add(year, mcode, mname, mid, name, domain, value, unit, schedule, vcode,
-            quality, note, formula=""):
+            quality, note, formula="", comparability=None):
         mart.append({
             "year": year, "municipality_code": mcode, "municipality_name": mname,
             "metric_id": mid, "metric_name": name, "metric_domain": domain,
@@ -232,8 +266,9 @@ def build_mart(fin, pop):
                             f"{year}_financial_year.xlsx" if schedule not in ("derived",) else "derived"),
             "source_schedule": schedule, "source_variable_code": vcode,
             "quality_status": quality,
-            "comparability_status": "provisional_peer_year" if (year == 2025 and mcode == "AB_CITIES_MEDIAN")
-                                    else "comparable",
+            "comparability_status": comparability or (
+                "provisional_peer_year" if (year == 2025 and mcode == "AB_CITIES_MEDIAN")
+                else "comparable"),
             "formula": formula, "data_quality_note": note,
         })
 
@@ -262,6 +297,7 @@ def build_mart(fin, pop):
                 note = "nominal dollars" if unit.startswith("$") else ""
                 add(year, mcode, mname, mid, name, domain, val, unit, sheet, vcode, q, note)
             # derived metrics
+            derived_vals = {}
             for mid, (num_id, den_id, name, domain, unit, formula, scale) in sorted(DERIVED.items()):
                 num, den = base_vals.get(num_id), base_vals.get(den_id)
                 if num is None or den is None:
@@ -272,9 +308,42 @@ def build_mart(fin, pop):
                     add(year, mcode, mname, mid, name, domain, None, unit, "derived",
                         f"{num_id}/{den_id}", "not_applicable", "denominator reported zero", formula)
                 else:
-                    add(year, mcode, mname, mid, name, domain, round(num / den * scale, 6),
+                    derived_vals[mid] = round(num / den * scale, 6)
+                    add(year, mcode, mname, mid, name, domain, derived_vals[mid],
                         unit, "derived", f"{num_id}/{den_id}", "reported_value",
                         "nominal inputs" if "$" in unit else "", formula)
+
+            # Real-dollar DISPLAY context (owner-approved 2026-07-18): Edmonton only.
+            # Published nominal value × CPI_base/CPI_year, base 2025. These rows exist
+            # for the drill-down toggle — the signal engine evaluates nominal values
+            # under rules v1.2 and never reads *_real2025 metrics.
+            if mcode == "0098":
+                factor = cpi[CPI_BASE_YEAR] / cpi[year]
+                dollar_ids = ([m for m, s in sorted(BASE_METRICS.items()) if s[4].startswith("$")]
+                              + [m for m, s in sorted(DERIVED.items()) if s[4].startswith("$")])
+                for mid in dollar_ids:
+                    spec = BASE_METRICS.get(mid) or DERIVED.get(mid)
+                    name, domain, unit = spec[2], spec[3], spec[4]
+                    real_unit = unit.replace("$ nominal", f"$ constant {CPI_BASE_YEAR}")
+                    nominal = base_vals.get(mid) if mid in BASE_METRICS else derived_vals.get(mid)
+                    if nominal is None:
+                        add(year, mcode, mname, f"{mid}_real{CPI_BASE_YEAR}",
+                            f"{name} (constant {CPI_BASE_YEAR} $)", domain, None, real_unit,
+                            "derived", f"{mid} x CPI{CPI_BASE_YEAR}/CPI{year}", "not_applicable",
+                            "nominal input not computed — not deflated (missing is never treated as zero)",
+                            f"{mid} × (CPI_{CPI_BASE_YEAR} / CPI_year)",
+                            comparability="display_only_context")
+                    else:
+                        add(year, mcode, mname, f"{mid}_real{CPI_BASE_YEAR}",
+                            f"{name} (constant {CPI_BASE_YEAR} $)", domain,
+                            round(nominal * factor, 6), real_unit,
+                            "derived", f"{mid} x CPI{CPI_BASE_YEAR}/CPI{year}", "reported_value",
+                            f"deflated with StatCan 18-10-0005-01, All-items Alberta annual CPI "
+                            f"(2002=100: {cpi[year]} → {cpi[CPI_BASE_YEAR]}), base {CPI_BASE_YEAR} — "
+                            "display-only context, owner-approved 2026-07-18; signals evaluate "
+                            "nominal values under rules v1.2",
+                            f"{mid} × (CPI_{CPI_BASE_YEAR} / CPI_year)",
+                            comparability="display_only_context")
 
         # AB reporting-city median (financial-workbook-only metrics; no population joins).
         # rules v1.2: the subject municipality (Edmonton, 0098) is excluded from its own
@@ -357,7 +426,8 @@ def main():
     CURATED.mkdir(parents=True, exist_ok=True)
     fin = extract_financial()
     pop = extract_population()
-    mart = build_mart(fin, pop)
+    cpi = extract_cpi()
+    mart = build_mart(fin, pop, cpi)
     cov = coverage(fin)
 
     write_csv(CURATED / "financial_long.csv", fin, list(fin[0].keys()))
@@ -367,7 +437,8 @@ def main():
     meta = {
         "built_from": "data/raw (read-only)",
         "governance": ["governance/metric_dictionary.md", "governance/municipality_crosswalk.csv"],
-        "dollar_basis": "nominal — no inflation adjustment approved",
+        "dollar_basis": "nominal — signals evaluate nominal values (rules v1.2); "
+                        "constant-2025$ display context available on *_real2025 metrics",
         "population_source": POP_FILE,
         "returns_received_by_year": cov,
         "coverage_note_2025": f"{cov[2025]} of 332 financial information returns received — peer results "
@@ -375,6 +446,14 @@ def main():
                               f"'{cov[2025]} out of 332')",
         "quality_states": ["reported_value", "reported_zero", "missing", "not_applicable",
                            "structurally_unavailable"],
+        "cpi_context": {
+            "source_file": CPI_FILE, "table": "18-10-0005-01",
+            "series": "Consumer Price Index, annual average, All-items, Alberta "
+                      "(2002=100), vector v41694625",
+            "base_year": CPI_BASE_YEAR, "values": cpi,
+            "scope": "display-only context, owner-approved 2026-07-18 — signals "
+                     "evaluate nominal values (rules v1.2)",
+        },
     }
     with open(CURATED / "metric_mart.json", "w", encoding="utf-8") as f:
         json.dump({"meta": meta, "records": mart}, f, indent=1)
@@ -386,6 +465,12 @@ def main():
     print("Edmonton 2025 spot-check:",
           {k: ed25.get(k) for k in ("pop", "debt_total", "debt_limit", "debt_utilization",
                                     "exp_total", "exp_per_capita", "fte_per_1000")})
+    print("CPI Alberta (2002=100):", cpi, "| base year:", CPI_BASE_YEAR)
+    real18 = next((r["value"] for r in mart if r["year"] == 2018
+                   and r["municipality_code"] == "0098"
+                   and r["metric_id"] == f"exp_per_capita_real{CPI_BASE_YEAR}"), None)
+    print(f"real spot-check: exp_per_capita_real{CPI_BASE_YEAR} 2018 = {real18} "
+          f"(2025 identity = {ed25.get(f'exp_per_capita_real{CPI_BASE_YEAR}')})")
 
 
 if __name__ == "__main__":
