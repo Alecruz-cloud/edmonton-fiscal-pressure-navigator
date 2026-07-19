@@ -34,6 +34,14 @@ provenance stamps. It should feel like a carefully prepared review memo — the 
 municipal CFO initials — not a control room. Calm is a feature: the tool flags pressure
 without performing alarm.
 
+**Palette (owner-approved 2026-07-18):** the City of Edmonton web palette, sampled live
+from edmonton.ca — primary `#005087`, deep navy `#132332`, body grey `#444444`, surface
+`#F5F4F5`, gold `#FFD400` (masthead accent only). Semantic status colours (high `#A53A24`,
+watch `#A36A00`, verified `#12805A`) are functional, not brand, and stay unchanged. The
+masthead carries student authorship and the footer carries full source references — the
+instrument uses the civic palette but is a student work product, never presented as a
+City of Edmonton publication and never using City marks.
+
 ## Anti-references
 
 - **KPI-wall municipal dashboards** (default Tableau/Power BI deployments) — twenty tiles,

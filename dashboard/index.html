@@ -6,9 +6,11 @@
 <title>Edmonton Fiscal Pressure Navigator</title>
 <style>
   :root{
-    --paper:#F2F4F3; --sheet:#FFFFFF; --ink:#17252C; --muted:#51626C;
-    --line:#C9D2D4; --line-soft:#DEE4E5;
-    --data:#0E76A8; --high:#A53A24; --watch:#A36A00; --verified:#12805A;
+    /* City of Edmonton web palette (edmonton.ca, sampled live 2026-07-18):
+       primary #005087 · deep navy #132332 · body grey #444444 · surface #F5F4F5 · gold #FFD400 */
+    --paper:#F5F4F5; --sheet:#FFFFFF; --ink:#132332; --muted:#444444;
+    --line:#D9DEE3; --line-soft:#ECECEC; --gold:#FFD400;
+    --data:#005087; --high:#A53A24; --watch:#A36A00; --verified:#12805A;
     --high-bg:#F6E9E5; --watch-bg:#F5EEDD; --verified-bg:#E4F0EA; --illus-bg:#EBEEF0;
     --serif:Georgia,'Palatino Linotype','Times New Roman',serif;
     --sans:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;
@@ -19,8 +21,11 @@
   a{color:var(--data)}
   .wrap{max-width:1080px;margin:0 auto;padding:0 24px 64px}
 
-  .live-banner{background:var(--ink);color:#fff;text-align:center;padding:8px 16px;font-size:12.5px;letter-spacing:.04em}
-  .live-banner b{letter-spacing:.14em}
+  .masthead{background:var(--ink);color:#fff;padding:9px 24px;font-family:var(--mono);
+    font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;border-bottom:2px solid var(--gold);
+    display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .masthead .who b{color:var(--gold);font-weight:700;letter-spacing:.08em}
+  .masthead .what{color:#C9D4DE}
 
   header.site{padding:36px 0 0}
   .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase}
@@ -141,7 +146,7 @@
     color:var(--muted);text-align:left;font-weight:600;padding:4px 8px 4px 0;border-bottom:1px solid var(--line)}
   table.rank td{padding:5px 8px 5px 0;border-bottom:1px solid var(--line-soft)}
   table.rank td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
-  table.rank tr.subject td{background:#EAF2F7;font-weight:600}
+  table.rank tr.subject td{background:#E6EFF6;font-weight:600}
 
   /* methodology */
   table.rules{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0 6px}
@@ -160,8 +165,9 @@
   .sheet li{margin-bottom:6px}
   .no-policy{border:1px solid var(--ink);padding:12px 14px;font-size:13.5px;margin-top:18px}
 
-  footer.site{margin-top:26px;font-size:12.5px;color:var(--muted)}
-  footer.site .stamp{margin-top:6px}
+  footer.site{margin-top:26px;font-size:12px;color:var(--muted);border-top:2px solid var(--ink);padding-top:12px}
+  footer.site .src{max-width:100ch;line-height:1.6}
+  footer.site b{color:var(--ink)}
 
   @media (max-width:860px){
     .signal{grid-template-columns:1fr}
@@ -174,7 +180,7 @@
     h1{font-size:30px}
   }
   @media print{
-    .live-banner,nav.tabs,footer.site{display:none}
+    .masthead,nav.tabs,footer.site{display:none}
     .view{display:none;border:none}
     #view-brief{display:block}
     body{background:#fff}
@@ -184,7 +190,10 @@
 </head>
 <body>
 
-<div class="live-banner"><b>LIVE BUILD</b> · computed from the curated metric mart · pressure rules v1.2 (owner-approved 2026-07-17) · context map from StatCan 2021 boundaries (owner-approved source) · every figure traceable to workbook › schedule › variable code › year</div>
+<div class="masthead">
+  <span class="who">Prepared by <b>Alejandro A. Cruz</b> · Master of Management Analytics Candidate, University of Alberta</span>
+  <span class="what">City of Edmonton · Financial Information Returns FY 2018–2025</span>
+</div>
 
 <div class="wrap">
 
@@ -298,8 +307,19 @@
 </section>
 
 <footer class="site">
-  <div>Built by the fixed pipeline (<span class="stamp">pipeline › build_mart.py · detect_signals.py · build_geo.py</span>) from
-    <span class="stamp">data › raw (read-only)</span>. Known-answer test suite: see <span class="stamp">tests/</span>.</div>
+  <div class="src"><b>Sources.</b> Alberta Municipal Affairs — Municipal Financial and Statistical Data workbooks,
+    FY 2018–2025 (all financial values; Edmonton municipal code 0098) ·
+    Alberta Census Subdivision population estimates, 2016–current (sole per-capita denominator; Edmonton CSD 4811061) ·
+    Statistics Canada, table 18-10-0005-01, Consumer Price Index, annual average, All-items, Alberta, 2002=100
+    (constant-2025$ display context; owner-approved 2026-07-18) ·
+    Statistics Canada, 2021 Census cartographic boundary file, census subdivisions (context-map geometry) ·
+    Base map tiles © OpenStreetMap contributors © CARTO (presentation only, never a source of any value).</div>
+  <div class="src" style="margin-top:8px"><b>Basis.</b> Figures are as reported — nominal dollars unless labelled
+    constant 2025$. Signals follow owner-approved pressure rules v1.2 (<span class="stamp">governance › pressure_rules.md</span>);
+    the full rule set, worked example, and reporting coverage are in
+    <a href="#view-method" onclick="selectTab(document.getElementById('tab-method'))">4 · Methodology</a>.
+    Prepared as an MMA 616 course project — a decision-support instrument for review prioritization, not a City of
+    Edmonton publication and not policy or financial advice.</div>
 </footer>
 
 </div>
@@ -365,7 +385,9 @@ tabs.forEach(t=>t.addEventListener('click',()=>selectTab(t)));
 // screenshots); #view-drill:metric_id additionally opens that metric's evidence (the
 // metric part is applied after the picker is populated, below initDrill)
 if(location.hash){
-  const view=location.hash.slice(1).split(":")[0];
+  // a leading "!" (e.g. #!view-method) suppresses the browser's native fragment scroll
+  // (no element carries that id), so full-page captures always start at the masthead
+  const view=location.hash.slice(1).replace(/^!/,"").split(":")[0];
   const target=document.querySelector(`nav.tabs button[aria-controls="${view}"]`);
   if(target) selectTab(target);
 }
@@ -392,8 +414,8 @@ function sparkline(hist, w=230, h=44){
   const p=4, min=Math.min(...v), max=Math.max(...v), span=(max-min)||1;
   const pts=v.map((y,i)=>[p+i*(w-2*p)/(v.length-1), h-p-(y-min)*(h-2*p)/span]);
   return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">
-    <polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#0E76A8" stroke-width="2" stroke-linejoin="round"/>
-    <circle cx="${pts.at(-1)[0]}" cy="${pts.at(-1)[1]}" r="3.5" fill="#0E76A8"/></svg>`;
+    <polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#005087" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="${pts.at(-1)[0]}" cy="${pts.at(-1)[1]}" r="3.5" fill="#005087"/></svg>`;
 }
 (function renderSignals(){
   const root = document.getElementById("signals-root");
@@ -467,9 +489,9 @@ function drawChart(mid, container, showReal){
   const cal = (approved && !showReal) ? seriesOf("0046",mid) : {};
   const med = (approved && !showReal) ? seriesOf("AB_CITIES_MEDIAN",mid) : {};
   const seriesList = [
-    {name:"Edmonton (nominal)", data:ed, color:"#0E76A8", dash:""},
+    {name:"Edmonton (nominal)", data:ed, color:"#005087", dash:""},
     Object.keys(real).length ? {name:"Edmonton (constant 2025 $, CPI context)", data:real, color:"#12805A", dash:"6 3"} : null,
-    Object.keys(cal).length ? {name:"Calgary (context)", data:cal, color:"#51626C", dash:"6 4"} : null,
+    Object.keys(cal).length ? {name:"Calgary (context)", data:cal, color:"#444444", dash:"6 4"} : null,
     Object.keys(med).length ? {name:"AB cities median (context)", data:med, color:"#A36A00", dash:"2 4"} : null,
   ].filter(Boolean);
   const allVals = seriesList.flatMap(s=>YEARS.map(y=>s.data[y]).filter(v=>v!==undefined));
@@ -481,16 +503,16 @@ function drawChart(mid, container, showReal){
   let svg="";
   for(let g=0;g<5;g++){
     const gv=ymin+(ymax-ymin)*g/4;
-    svg+=`<line x1="${L}" y1="${y(gv)}" x2="${W-R}" y2="${y(gv)}" stroke="#DEE4E5"/>`;
-    svg+=`<text x="${L-8}" y="${y(gv)+4}" text-anchor="end" font-size="10.5" fill="#51626C" font-family="Consolas,monospace">${fmtVal(gv,unit,unit==="%"?1:0)}</text>`;
+    svg+=`<line x1="${L}" y1="${y(gv)}" x2="${W-R}" y2="${y(gv)}" stroke="#ECECEC"/>`;
+    svg+=`<text x="${L-8}" y="${y(gv)+4}" text-anchor="end" font-size="10.5" fill="#444444" font-family="Consolas,monospace">${fmtVal(gv,unit,unit==="%"?1:0)}</text>`;
   }
-  YEARS.forEach((yr,i)=>svg+=`<text x="${x(i)}" y="${H-10}" text-anchor="middle" font-size="11" fill="#51626C" font-family="Consolas,monospace">${yr}</text>`);
+  YEARS.forEach((yr,i)=>svg+=`<text x="${x(i)}" y="${H-10}" text-anchor="middle" font-size="11" fill="#444444" font-family="Consolas,monospace">${yr}</text>`);
   seriesList.forEach(s=>{
     const pts=YEARS.map((yr,i)=>s.data[yr]!==undefined?[x(i),y(s.data[yr]),yr,s.data[yr]]:null).filter(Boolean);
     svg+=`<polyline points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="none" stroke="${s.color}" stroke-width="2" stroke-dasharray="${s.dash}" stroke-linejoin="round"/>`;
     pts.forEach(p=>{ svg+=`<circle class="pt" data-label="${s.name} ${p[2]}: ${fmtVal(p[3],unit)}" cx="${p[0]}" cy="${p[1]}" r="4" fill="${s.color}" stroke="#fff" stroke-width="1.5"/>`; });
     const last=pts.at(-1);
-    svg+=`<text x="${last[0]}" y="${last[1]-10}" text-anchor="end" font-size="11" font-weight="600" fill="#17252C">${fmtVal(last[3],unit,unit==="%"?2:0)}</text>`;
+    svg+=`<text x="${last[0]}" y="${last[1]-10}" text-anchor="end" font-size="11" font-weight="600" fill="#132332">${fmtVal(last[3],unit,unit==="%"?2:0)}</text>`;
   });
   container.innerHTML =
     `<div class="legend">${seriesList.map(s=>`<span><span class="key" style="border-color:${s.color};border-top-style:${s.dash? 'dashed':'solid'}"></span>${esc(s.name)}</span>`).join("")}</div>
@@ -696,7 +718,7 @@ const EVALUATED = Object.keys(ALL_RESULTS).map(mid=>{
 
 /* ---------- Alberta context map (Leaflet + Carto Positron; base map is presentation only) ---------- */
 function rampColor(t){
-  const a=[221,232,239], b=[14,118,168];
+  const a=[223,234,242], b=[0,80,135];   // City of Edmonton primary #005087
   return `rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(",")})`;
 }
 let LMAP=null, LBUBBLES=null;
@@ -714,7 +736,7 @@ function ensureLeafletMap(){
   L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:9,
     attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a> · base map: presentation only'
   }).addTo(LMAP);
-  L.polygon(rings,{color:"#51626C",weight:1.4,dashArray:"5 4",fill:false,interactive:false}).addTo(LMAP);
+  L.polygon(rings,{color:"#444444",weight:1.4,dashArray:"5 4",fill:false,interactive:false}).addTo(LMAP);
   LBUBBLES=L.layerGroup().addTo(LMAP);
   LMAP.fitBounds(window.ABB,{padding:[12,12],animate:false});
 }
@@ -735,8 +757,8 @@ function renderMap(){
   order.forEach(c=>{
     const v=vals[c.code], subject=c.code==="0098", r0=subject?10:7;
     const style=(v===null||v===undefined)
-      ? {radius:r0,color:"#51626C",weight:1.2,dashArray:"2 2",fillColor:"#D8DEE1",fillOpacity:.9}
-      : {radius:r0,color:subject?"#17252C":"#FFFFFF",weight:subject?2.4:1.4,fillColor:rampColor((v-lo)/span),fillOpacity:.92};
+      ? {radius:r0,color:"#444444",weight:1.2,dashArray:"2 2",fillColor:"#D8DEE1",fillOpacity:.9}
+      : {radius:r0,color:subject?"#132332":"#FFFFFF",weight:subject?2.4:1.4,fillColor:rampColor((v-lo)/span),fillOpacity:.92};
     const label=(v===null||v===undefined)
       ? `${c.name} ${year}: ${reasons[c.code]||"no value"}`
       : `${c.name} ${year}: ${fmtVal(v,meta.unit)}`;
